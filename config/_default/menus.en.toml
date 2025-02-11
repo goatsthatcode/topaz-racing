@@ -1,0 +1,77 @@
+[[main]]
+  name       = 'Races'
+  identifier = 'races'
+  pageRef    = '/races'
+  weight     = 1
+
+  [[main]]
+  name       = 'Dan Byrne 2025'
+  identifier = 'dan-byrne-2025'
+  pageRef    = '/dan-byrne-2025'
+  parent     = 'races'
+
+  [[main]]
+    name       = 'Ship Rock Race'
+    identifier = 'ship-rock-race'
+    pageRef    = '/'
+    parent     = 'dan-byrne-2025'
+
+  [[main]]
+    name       = 'Bishop Rock Race'
+    identifier = 'biship-rock-race'
+    pageRef    = '/'
+    parent     = 'dan-byrne-2025'
+
+  [[main]]
+    name       = 'Meridian 400 Race'
+    identifier = 'meridian-400-race'
+    pageRef    = '/'
+    parent     = 'dan-byrne-2025'
+
+  [[main]]
+    name       = 'Catalina Backside Race'
+    identifier = 'catalina-backside-race'
+    pageRef    = '/'
+    parent     = 'dan-byrne-2025'
+
+  [[main]]
+    name       = 'Santa Barbara Island Race'
+    identifier = 'sb-island-race'
+    pageRef    = '/'
+    parent     = 'dan-byrne-2025'
+
+
+[[main]]
+  name       = 'Blog'
+  identifier = 'blog'
+  pageRef    = '/'
+  weight     = 2
+
+
+[[more]]
+  name       = 'About'
+  identifier = 'about'
+  pageRef    = '/'
+  weight     = 5
+
+  [[more]]
+  name       = 'The Boat'
+  identifier = 'the-boat'
+  parent     = 'about'
+  pageRef    = '/'
+  weight     = 1
+
+  [[more]]
+  name       = 'Author'
+  identifier = 'author'
+  pageRef    = '/author'
+  parent     = 'about'
+  weight     = 2
+
+[[footer]]
+  identifier = 'email'
+  pageRef    = '/'
+  weight     = 3
+  name       = 'email'
+  pre        = 'email'
+

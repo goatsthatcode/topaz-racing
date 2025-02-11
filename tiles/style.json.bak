@@ -1,0 +1,61 @@
+{
+    "version": 8,
+    "name": "OSM Vector Tiles",
+    "center": [-118.5, 33.5],
+    "zoom": 8,
+    "sources": {
+        "osm-tiles": {
+            "type": "vector",
+            "tiles": ["http://127.0.0.1:3000/combined_socal/{z}/{x}/{y}"]
+        }
+    },
+    "layers": [
+	{
+	      "id": "background",
+	      "type": "background",
+	      "paint": {"background-color": "rgba(46,33,87,1.0)"}
+    	},
+        {
+            "id": "coastline",
+            "source": "osm-tiles",
+            "source-layer": "COALNE",
+            "type": "line",
+            "paint": {"line-color": "#198EC8"}
+        },
+        {
+            "id": "landarea",
+            "source": "osm-tiles",
+            "source-layer": "LNDARE",
+            "type": "fill",
+            "paint": {"fill-color": "#130f1f"}
+        },
+	    {
+            "id": "deptharea",
+            "source": "osm-tiles",
+            "source-layer": "DEPARE",
+            "type": "fill",
+            "paint": {
+		        "fill-color": {
+                    "property": "DRVAL1",
+                    "stops": [
+                        [50, "rgba(23, 103, 86, 0.75)"],
+                        [200, "rgba(23, 103, 86, 0.60)"],
+                        [500, "rgba(23, 103, 86, 0.45)"],
+                        [1000, "rgba(23, 103, 86, 0.20)"]
+                    ]
+                }
+	        }
+        },
+        {
+            "id": "depth_contour",
+            "source": "osm-tiles",
+            "source-layer": "DEPCNT",
+            "type": "line",
+	        "paint": {
+              "line-color": "rgba(246,7,207,0.95)",
+	          "line-dasharray": [0.5, 0.25],
+	          "line-width": {"base": 1.2, "stops": [[15, 1], [16, 4], [20, 11]]}
+	        }
+	    }
+    ]
+}

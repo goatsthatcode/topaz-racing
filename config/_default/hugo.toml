@@ -1,0 +1,133 @@
+baseURL = 'https://topaz-racing.com/'
+languageCode = 'en-us'
+title = 'Topaz Racing'
+theme = 'hugo-brewm'
+
+## Enable Git information for pages, (e.g. lastMod date information)
+enableGitInfo = true
+## Convert all URLs to absolute URLs
+canonifyURLs = true
+
+## Use sections for main menu
+# sectionPagesMenu = 'main'
+## Files to ignore when building site
+ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
+
+## Enable code fence highlighting
+[markup]
+    [markup.highlight]
+        codeFences = true
+
+## Sitemap configuration
+[sitemap]
+    ## Change frequency setting (will affect posts listings layout): 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never'
+    changeFreq = 'monthly'
+
+## Site parameters
+[params]
+    ## Site title
+    title = "Topaz Racing"
+    ## Site description
+    # description = "A blog to document and follow the adventures of s/v Topaz"
+    ## Copyright notice
+    copyright = "Copyright 2025 (c) lbrindze"
+    ## Enable extended metadata (social cards)
+    extMeta = true
+    ## Enable coffee metric
+    coffeeStat = false
+
+    ## Author information
+    [params.author]
+        ## site author's name
+        name = 'Loren Brindze'
+        ## Author's email (will be used for RSS feed)
+        email = 'lorenbrindze@gmail.com'
+        ## Other method to customize author and co-authors information
+        bio =  'Loren is a sailor who mostly enjoys going out alone on his boat Topaz. He has taken many wonderful adventures aboard topaz, including completing the Bermuda 1-2 race in 2021.  Now he is preparing to take Topaz to Hawaii in the 2025 Single Handed Transpacific Yacht Race.  Follow along with the preperations and standings in local races!'
+
+    ## Comments configuration
+    [params.comments]
+        ## Disable comments (disable fediverse comments)
+        disabled = true
+        ## Comment platform selection, currently only 'fediverse' is supported, further options to be determined
+        platform = 'fediverse'
+
+    ## Fediverse integration settings
+    [params.fediverse]
+        ## Fediverse instance URL
+        instance = 'example.com'
+        ## Fediverse username
+        username = 'username'
+
+    ## Logo configuration
+    [params.logo]
+        ## Light mode logo mark
+        logoMark = 'https://example.com/logoMark.svg'
+        ## Dark mode logo mark
+        logoMarkDark = 'https://example.com/logoMarkDark.svg'
+        ## Enable logo type
+        logoType = true
+
+    ## Feed display settings
+    [params.feed]
+        ## Enable flowlines
+        flowlines = true
+        ## Limit number of flowlines
+        flowlinesLimit = 21
+
+    ## Home page display settings
+    [params.home]
+        ## Disable slide carousel
+        disableSlide = false
+        ## Disable taxonomy listing carousel
+        disableListing = false
+
+    ## Post display settings
+    [params.posts]
+        ## Enable text justification
+        justifying = false
+        ## Disable paragraph indentation
+        noIndent = false
+        ## Show colophon section (including QR code)
+        colophon = true
+
+    ## Search configuration
+    [params.search]
+        ## Enable search functionality, use duckduckgo (no javascript)
+        enable = true
+        ## Use pagefind search when javascript enabled, currently only 'pagefind' is supported, further options to be determined
+        pagefind = true
+
+    ## Typography settings
+    [params.typeface]
+        ## Use web safe fonts (will overide font selection below)
+        webSafe = false
+        ## Serif font selection
+        roman = 'crimson'
+        ## Sans-serif font selection
+        sans = 'inter'
+
+    ## Extended Metadata and Social card configuration
+    [params.socialCard]
+        ## Enable twitter and opengraph social cards (same as .params.extMeta)
+        enable = false 
+        ## Default social card image, recommended resolution: 1200 x 630px
+        # image = "img/social-share.jpg" 
+        ## Enable Twitter cards
+        # twitter = true
+        ## Twitter creator handle
+        # twitterCreator = "@username"
+        ## Twitter site handle
+        # twitterSite = "@username"
+
+        ## Enable OpenGraph
+        # opengraph = true
+        ## Facebook App ID
+        # facebookAppID = "123456789"
+        ## Facebook Admin ID
+        # facebookAdmin = "USER_ID"
+
+        ## Schema.org (EXPERIMENTAL, not fully supported body tags)
+        # schema = true
+        ## JsonLD (EXPERIMENTAL, cannot validate permalink)
+        # jsonLD = true

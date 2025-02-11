@@ -1,0 +1,110 @@
+{
+  "version": 8,
+  "name": "OSM Vector Tiles",
+  "metadata": {"maputnik:renderer": "mlgljs"},
+  "center": [-118.5, 33.5],
+  "zoom": 8,
+  "sources": {
+    "osm-tiles": {
+      "type": "vector",
+      "tiles": ["http://127.0.0.1:3000/combined_socal/{z}/{x}/{y}"]
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {"background-color": "rgba(46,33,87,1.0)"}
+    },
+    {
+      "id": "coastline",
+      "type": "line",
+      "source": "osm-tiles",
+      "source-layer": "COALNE",
+      "paint": {"line-color": "#198EC8"}
+    },
+    {
+      "id": "landarea",
+      "type": "fill",
+      "source": "osm-tiles",
+      "source-layer": "LNDARE",
+      "layout": {"visibility": "visible"},
+      "paint": {"fill-color": "#130f1f"}
+    },
+    {
+      "id": "deptharea",
+      "type": "fill",
+      "source": "osm-tiles",
+      "source-layer": "DEPARE",
+      "paint": {
+        "fill-color": {
+          "property": "DRVAL1",
+          "stops": [
+            [50, "rgba(43, 55, 86, 0.75)"],
+            [350, "rgba(53, 50, 90, 0.60)"],
+            [500, "rgba(31, 45, 96, 0.45)"],
+            [1000, "rgba(21, 35, 30, 0.20)"]
+          ]
+        }
+      }
+    },
+    {
+      "id": "depth_contour",
+      "type": "line",
+      "source": "osm-tiles",
+      "source-layer": "DEPCNT",
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "line-color": {
+          "stops": [
+            [1, "rgba(180, 22, 194, 0.0)"],
+            [11, "rgba(180, 22, 194, 0.8)"]
+          ]
+        },
+        "line-width": 1.5,
+        "line-opacity": 0.3
+      }
+    },
+    {
+      "id": "rivers",
+      "type": "line",
+      "source": "osm-tiles",
+      "source-layer": "RIVERS",
+      "paint": {"line-color": "rgba(25, 18, 42, 1)"}
+    },
+    {
+      "id": "shipping-lane-divider",
+      "type": "fill",
+      "source": "osm-tiles",
+      "source-layer": "TSEZNE",
+      "paint": {"fill-color": "rgba(85, 45, 7, 0.06)"}
+    },
+    {
+      "id": "shipping-lane-boundary",
+      "type": "line",
+      "source": "osm-tiles",
+      "source-layer": "TSSBND",
+      "paint": {
+        "line-color": "rgba(126, 3, 5, 0.39)",
+        "line-dasharray": [2, 1],
+        "line-width": 0.8
+      }
+    },
+    {
+      "id": "shipping-lanes",
+      "type": "fill",
+      "source": "osm-tiles",
+      "source-layer": "TSSLPT",
+      "layout": {"visibility": "visible"},
+      "paint": {"fill-color": "rgba(52, 4, 7, 0.21)"}
+    },
+    {
+      "id": "precautionary-area",
+      "type": "fill",
+      "source": "osm-tiles",
+      "source-layer": "PRCARE",
+      "paint": {"fill-color": "rgba(97, 101, 78, 0.15)"}
+    }
+  ],
+  "id": "efszp0r"
+}
