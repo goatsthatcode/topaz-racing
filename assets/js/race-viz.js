@@ -6,6 +6,10 @@ const DEFAULT_COURSE_START_FINISH_LAYER_ID = "race-viz-course-start-finish";
 const DEFAULT_COURSE_LABELS_LAYER_ID = "race-viz-course-labels";
 const DEFAULT_TRACKS_SOURCE_ID = "race-viz-tracks";
 const DEFAULT_TRACKS_LAYER_ID = "race-viz-tracks";
+const DEFAULT_REPLAY_TAILS_SOURCE_ID = "race-viz-replay-tails";
+const DEFAULT_REPLAY_TAILS_LAYER_ID = "race-viz-replay-tails";
+const DEFAULT_BOAT_MARKERS_SOURCE_ID = "race-viz-boat-markers";
+const DEFAULT_BOAT_MARKERS_LAYER_ID = "race-viz-boat-markers";
 const DEFAULT_COURSE_PALETTE = "signal-v1";
 const DEFAULT_MAP_FIT_PADDING = 48;
 const DEFAULT_MAP_FIT_MAX_ZOOM = 9.25;
@@ -79,6 +83,14 @@ function createRaceVizConfig(root) {
       sourceID: root.dataset.raceVizTracksSource ?? DEFAULT_TRACKS_SOURCE_ID,
       layerID: root.dataset.raceVizTracksLayer ?? DEFAULT_TRACKS_LAYER_ID,
     },
+    replayTails: {
+      sourceID: root.dataset.raceVizReplayTailsSource ?? DEFAULT_REPLAY_TAILS_SOURCE_ID,
+      layerID: root.dataset.raceVizReplayTailsLayer ?? DEFAULT_REPLAY_TAILS_LAYER_ID,
+    },
+    boatMarkers: {
+      sourceID: root.dataset.raceVizBoatMarkersSource ?? DEFAULT_BOAT_MARKERS_SOURCE_ID,
+      layerID: root.dataset.raceVizBoatMarkersLayer ?? DEFAULT_BOAT_MARKERS_LAYER_ID,
+    },
     boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
     eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
   };
@@ -127,6 +139,7 @@ function createRaceVizState(config) {
       durationMs: 0,
       currentTimeMs: 0,
       playing: false,
+      started: false,
       speed: 1,
       timeline: null,
       snapshot: null,
@@ -814,11 +827,19 @@ function setReplayTime(root, state, requestedTimeMs) {
   state.replay.snapshot = buildReplaySnapshot(state.replay.timeline, state.replay.currentTimeMs);
   syncReplayClockDataset(root, state.replay);
   syncReplayControls(root, state);
+
+  if (state.replay.started && state.map.instance && state.map.status === "ready") {
+    renderReplayFrame(state.map.instance, state);
+  }
 }
 
 function resetReplay(root, state) {
   stopReplayPlayback(state);
+  state.replay.started = false;
   setReplayTime(root, state, state.replay.startTimeMs);
+  if (state.map.instance && state.map.status === "ready") {
+    enterPrePlayMode(state.map.instance, state);
+  }
 }
 
 function startReplayPlayback(root, state) {
@@ -828,6 +849,13 @@ function startReplayPlayback(root, state) {
 
   if (state.replay.currentTimeMs >= state.replay.endTimeMs) {
     setReplayTime(root, state, state.replay.startTimeMs);
+  }
+
+  if (!state.replay.started) {
+    state.replay.started = true;
+    if (state.map.instance && state.map.status === "ready") {
+      enterPlayingMode(state.map.instance, state);
+    }
   }
 
   state.replay.playing = true;
@@ -895,6 +923,13 @@ function attachReplayControls(root, state) {
     const nextOffsetMs = Number.parseInt(event.target.value, 10);
     if (!Number.isFinite(nextOffsetMs)) {
       return;
+    }
+
+    if (!state.replay.started) {
+      state.replay.started = true;
+      if (state.map.instance && state.map.status === "ready") {
+        enterPlayingMode(state.map.instance, state);
+      }
     }
 
     setReplayTime(root, state, state.replay.startTimeMs + nextOffsetMs);
@@ -1149,6 +1184,202 @@ function fitCourseBounds(map, courseFeatures) {
   map.setMinZoom(fittedZoom);
 }
 
+function emptyFeatureCollection() {
+  return { type: "FeatureCollection", features: [] };
+}
+
+function buildTrackTailCoordinates(boat, timeMs) {
+  const coords = [];
+
+  for (const point of boat.track) {
+    coords.push([point.lon, point.lat]);
+    if (point.timestampMs >= timeMs) {
+      break;
+    }
+  }
+
+  const pos = interpolateBoatPosition(boat, timeMs);
+  const last = coords[coords.length - 1];
+  if (!last || last[0] !== pos.lon || last[1] !== pos.lat) {
+    coords.push([pos.lon, pos.lat]);
+  }
+
+  return coords;
+}
+
+function buildReplayTailFeatures(timeline, timeMs) {
+  const features = [];
+
+  for (const boat of timeline.boats) {
+    const coords = buildTrackTailCoordinates(boat, timeMs);
+    if (coords.length < 2) {
+      continue;
+    }
+
+    features.push({
+      type: "Feature",
+      geometry: { type: "LineString", coordinates: coords },
+      properties: {
+        featureType: "replay-tail",
+        id: boat.id ?? "",
+        name: boat.name ?? "",
+        color: boat.color ?? "#ffffff",
+        isSelf: Boolean(boat.isSelf),
+      },
+    });
+  }
+
+  return { type: "FeatureCollection", features };
+}
+
+function buildBoatMarkerFeatures(snapshot) {
+  return {
+    type: "FeatureCollection",
+    features: snapshot.boats.map((boat) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [boat.position.lon, boat.position.lat],
+      },
+      properties: {
+        featureType: "boat-marker",
+        id: boat.id ?? "",
+        name: boat.name ?? "",
+        color: boat.color ?? "#ffffff",
+        isSelf: Boolean(boat.isSelf),
+      },
+    })),
+  };
+}
+
+function upsertReplayTailsSource(map, state, data) {
+  const source = map.getSource(state.config.replayTails.sourceID);
+  if (source) {
+    source.setData(data);
+    return;
+  }
+
+  map.addSource(state.config.replayTails.sourceID, { type: "geojson", data });
+}
+
+function upsertBoatMarkersSource(map, state, data) {
+  const source = map.getSource(state.config.boatMarkers.sourceID);
+  if (source) {
+    source.setData(data);
+    return;
+  }
+
+  map.addSource(state.config.boatMarkers.sourceID, { type: "geojson", data });
+}
+
+function renderReplayTailLayers(map, state) {
+  const source = state.config.replayTails.sourceID;
+  const layerID = state.config.replayTails.layerID;
+
+  ensureCourseLayer(map, `${layerID}-casing`, {
+    type: "line",
+    source,
+    layout: { "line-cap": "round", "line-join": "round", visibility: "none" },
+    paint: {
+      "line-color": "rgba(5, 14, 24, 0.92)",
+      "line-width": ["case", ["boolean", ["get", "isSelf"], false], 6, 5],
+      "line-opacity": 0.88,
+    },
+  });
+
+  ensureCourseLayer(map, layerID, {
+    type: "line",
+    source,
+    layout: { "line-cap": "round", "line-join": "round", visibility: "none" },
+    paint: {
+      "line-color": ["coalesce", ["get", "color"], "#ffffff"],
+      "line-width": ["case", ["boolean", ["get", "isSelf"], false], 3.25, 2.5],
+      "line-opacity": ["case", ["boolean", ["get", "isSelf"], false], 0.95, 0.78],
+    },
+  });
+}
+
+function renderBoatMarkerLayers(map, state) {
+  const source = state.config.boatMarkers.sourceID;
+  const layerID = state.config.boatMarkers.layerID;
+
+  ensureCourseLayer(map, `${layerID}-halo`, {
+    type: "circle",
+    source,
+    layout: { visibility: "none" },
+    paint: {
+      "circle-color": "rgba(5, 14, 24, 0.88)",
+      "circle-radius": ["case", ["boolean", ["get", "isSelf"], false], 10, 9],
+    },
+  });
+
+  ensureCourseLayer(map, layerID, {
+    type: "circle",
+    source,
+    layout: { visibility: "none" },
+    paint: {
+      "circle-color": ["coalesce", ["get", "color"], "#ffffff"],
+      "circle-radius": ["case", ["boolean", ["get", "isSelf"], false], 6, 5],
+      "circle-stroke-width": 1.5,
+      "circle-stroke-color": "rgba(255,255,255,0.5)",
+    },
+  });
+}
+
+function setLayerVisibility(map, layerID, visible) {
+  if (!map.getLayer(layerID)) {
+    return;
+  }
+
+  map.setLayoutProperty(layerID, "visibility", visible ? "visible" : "none");
+}
+
+function enterPrePlayMode(map, state) {
+  const tracksLayerID = state.config.tracks.layerID;
+  const replayTailsLayerID = state.config.replayTails.layerID;
+  const boatMarkersLayerID = state.config.boatMarkers.layerID;
+  const selfOnlyFilter = ["boolean", ["get", "isSelf"], false];
+
+  if (map.getLayer(tracksLayerID)) {
+    map.setFilter(tracksLayerID, selfOnlyFilter);
+  }
+  if (map.getLayer(`${tracksLayerID}-casing`)) {
+    map.setFilter(`${tracksLayerID}-casing`, selfOnlyFilter);
+  }
+
+  setLayerVisibility(map, tracksLayerID, true);
+  setLayerVisibility(map, `${tracksLayerID}-casing`, true);
+  setLayerVisibility(map, replayTailsLayerID, false);
+  setLayerVisibility(map, `${replayTailsLayerID}-casing`, false);
+  setLayerVisibility(map, boatMarkersLayerID, false);
+  setLayerVisibility(map, `${boatMarkersLayerID}-halo`, false);
+}
+
+function enterPlayingMode(map, state) {
+  const tracksLayerID = state.config.tracks.layerID;
+  const replayTailsLayerID = state.config.replayTails.layerID;
+  const boatMarkersLayerID = state.config.boatMarkers.layerID;
+
+  setLayerVisibility(map, tracksLayerID, false);
+  setLayerVisibility(map, `${tracksLayerID}-casing`, false);
+  setLayerVisibility(map, replayTailsLayerID, true);
+  setLayerVisibility(map, `${replayTailsLayerID}-casing`, true);
+  setLayerVisibility(map, boatMarkersLayerID, true);
+  setLayerVisibility(map, `${boatMarkersLayerID}-halo`, true);
+}
+
+function renderReplayFrame(map, state) {
+  if (!state.replay.snapshot || !state.replay.timeline) {
+    return;
+  }
+
+  const tailFeatures = buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs);
+  upsertReplayTailsSource(map, state, tailFeatures);
+
+  const markerFeatures = buildBoatMarkerFeatures(state.replay.snapshot);
+  upsertBoatMarkersSource(map, state, markerFeatures);
+}
+
 async function loadCourse(root, stage, state, mapReadyPromise) {
   if (!state.config.activeLayers.includes("course")) {
     return;
@@ -1207,6 +1438,11 @@ async function loadBoats(root, stage, state, mapReadyPromise) {
     const map = await mapReadyPromise;
     upsertTracksSource(map, state, trackFeatures);
     renderTrackLayers(map, state);
+    upsertReplayTailsSource(map, state, emptyFeatureCollection());
+    renderReplayTailLayers(map, state);
+    upsertBoatMarkersSource(map, state, emptyFeatureCollection());
+    renderBoatMarkerLayers(map, state);
+    enterPrePlayMode(map, state);
     setBoatsState(root, stage, state, "ready");
     setReplayClockState(root, state, "ready");
     syncReplayControls(root, state);

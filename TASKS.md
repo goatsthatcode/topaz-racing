@@ -278,6 +278,8 @@ Acceptance criteria:
 ### Task 4.4
 Implement initial load behavior.
 
+- [x] Done on 2026-05-11: initialized replay at time 0 in `loadBoats` via `state.replay.currentTimeMs = timeline.startTimeMs`, added `enterPrePlayMode` which filters the static track layers to show only the isSelf boat’s full route before playback begins, and covered the pre-play contract in `race_initial_load_test.go`.
+
 Deliverables:
 - replay initialized at time 0
 - optional pre-play display of the completed `isSelf` route before user playback
@@ -287,6 +289,8 @@ Acceptance criteria:
 
 ### Task 4.5
 Render moving boats and persistent full track tails.
+
+- [x] Done on 2026-05-11: added `buildTrackTailCoordinates` and `buildReplayTailFeatures` to compute per-boat tails trimmed to the current replay time, added `buildBoatMarkerFeatures` and `renderBoatMarkerLayers` to show current-position circles, wired both into `renderReplayFrame` which is called from `setReplayTime` on every clock tick, and covered the moving-boats contract in `race_moving_boats_test.go`.
 
 Deliverables:
 - current boat markers
@@ -431,7 +435,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 1: Data Contracts
 - [x] Milestone 2: Map Foundation
 - [x] Milestone 3: Course Rendering
-- [ ] Milestone 4: Replay Engine
+- [x] Milestone 4: Replay Engine
 - [ ] Milestone 5: Interaction Layer
 - [ ] Milestone 6: Hugo Page Integration
 - [ ] Milestone 7: Styling And UX Refinement
