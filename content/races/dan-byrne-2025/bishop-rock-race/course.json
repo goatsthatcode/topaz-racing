@@ -1,0 +1,48 @@
+{
+  "id": "bishop-rock-race-course",
+  "name": "Bishop Rock Race",
+  "elements": [
+    {
+      "id": "start",
+      "type": "start_line",
+      "lat": 33.9769,
+      "lon": -118.4451,
+      "name": "MDR Start",
+      "rounding": "none"
+    },
+    {
+      "id": "cortez-bank",
+      "type": "mark",
+      "lat": 32.475,
+      "lon": -119.293,
+      "name": "Cortez Bank",
+      "rounding": "port",
+      "controlPointsToNext": [
+        {
+          "lat": 32.9715,
+          "lon": -119.113
+        },
+        {
+          "lat": 33.2364,
+          "lon": -118.9412
+        }
+      ]
+    },
+    {
+      "id": "west-end-catalina",
+      "type": "mark",
+      "lat": 33.4445,
+      "lon": -118.6074,
+      "name": "Catalina West End",
+      "rounding": "port"
+    },
+    {
+      "id": "finish",
+      "type": "finish_line",
+      "lat": 33.4445,
+      "lon": -118.6074,
+      "name": "Catalina West End Finish",
+      "rounding": "none"
+    }
+  ]
+}

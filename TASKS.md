@@ -14,6 +14,8 @@ The intended execution style is:
 ### Task 0.1
 Decide and document the on-disk content structure for race pages and race data under `content/`.
 
+- [x] Done on 2026-05-11: documented the canonical race bundle shape in `docs/race-content-structure.md` and added `content/races/dan-byrne-2025/bishop-rock-race/` as the reference pattern.
+
 Deliverables:
 - one canonical race directory shape
 - clear separation between prose content and JSON assets
@@ -26,6 +28,8 @@ Acceptance criteria:
 ### Task 0.2
 Choose the Hugo integration approach for embedding race visualizations.
 
+- [x] Done on 2026-05-11: added the `race-viz` shortcode in `layouts/shortcodes/race-viz.html`, documented the embed contract and race ID convention in `docs/race-embed-approach.md`, and covered the rendered output with `race_embed_shortcode_test.go`.
+
 Deliverables:
 - one selected embed mechanism, preferably shortcode-based
 - a documented race identifier convention
@@ -35,6 +39,8 @@ Acceptance criteria:
 
 ### Task 0.3
 Define the frontend asset strategy for the visualization code.
+
+- [x] Done on 2026-05-11: kept race visualization assets in project-owned Hugo Pipes files under `assets/js/` and `assets/css/`, documented the conditional loading strategy in `docs/frontend-asset-strategy.md`, and covered race-page-only asset emission with `race_asset_strategy_test.go`.
 
 Deliverables:
 - chosen location for JS/CSS assets in the Hugo project
@@ -46,6 +52,8 @@ Acceptance criteria:
 
 ### Task 0.4
 Commit to a shared visualization engine and data model for V1 modes.
+
+- [x] Done on 2026-05-11: documented the shared engine in `docs/race-visualization-architecture.md`, updated `layouts/shortcodes/race-viz.html` and `assets/js/race-viz.js` to use one engine contract plus stable layer slots for both modes, and covered the shared-mode contract with `race_visualization_architecture_test.go`.
 
 Deliverables:
 - one architecture note or implementation decision covering shared map, overlay, and state primitives
@@ -60,6 +68,8 @@ Acceptance criteria:
 
 ### Task 1.1
 Define the V1 JSON schema for race course data.
+
+- [x] Done on 2026-05-11: defined the machine-readable course contract in `schemas/race-course-v1.schema.json`, documented the authoring semantics in `docs/race-course-schema.md`, and added `race_course_schema_test.go` to keep the reference course aligned with the V1 schema.
 
 Deliverables:
 - course file format
@@ -78,6 +88,8 @@ Acceptance criteria:
 ### Task 1.2
 Define the V1 JSON schema for boat track data.
 
+- [x] Done on 2026-05-11: defined the machine-readable boat-track contract in `schemas/race-boats-v1.schema.json`, documented the authoring model in `docs/race-boats-schema.md`, and added `race_boats_schema_test.go` to keep the reference `boats.json` aligned with the V1 replay payload.
+
 Deliverables:
 - per-boat metadata contract
 - required boat metadata fields: `id`, `name`, `color`, `boatType`, `source`, `isSelf`
@@ -91,6 +103,8 @@ Acceptance criteria:
 ### Task 1.3
 Define the V1 JSON schema for event annotations.
 
+- [x] Done on 2026-05-11: defined the machine-readable event-annotation contract in `schemas/race-events-v1.schema.json`, documented time and position anchoring in `docs/race-events-schema.md`, and added `race_events_schema_test.go` to keep the reference `events.json` aligned with the V1 annotation payload.
+
 Deliverables:
 - annotation types
 - time-anchored and/or position-anchored event model
@@ -101,6 +115,8 @@ Acceptance criteria:
 
 ### Task 1.4
 Create one complete sample race dataset.
+
+- [x] Done on 2026-05-11: completed the Bishop Rock reference bundle with `course.json`, `boats.json`, and `events.json`, and added `race_sample_dataset_test.go` to verify it covers the full V1 course, boats, and annotation flow.
 
 Deliverables:
 - one real or representative course file
@@ -116,6 +132,8 @@ Acceptance criteria:
 ### Task 2.1
 Audit and adapt the existing `tiles/` prototype into a reusable map foundation for the Hugo site.
 
+- [x] Done on 2026-05-11: documented the prototype-to-site contract in `docs/race-map-foundation.md`, published a site-owned style resource through `layouts/partials/race-viz/map-foundation.html` and `assets/race-viz/map/style.json.tmpl`, surfaced the map contract on `race-viz` embeds, and added `race_map_foundation_test.go`.
+
 Deliverables:
 - documented relationship between `tiles/index.html`, `tiles/style.json`, and site integration
 - decision on how the site loads the map style in local preview and published environments
@@ -125,6 +143,8 @@ Acceptance criteria:
 
 ### Task 2.2
 Create a reusable map component that renders the ENC-style vector chart background in a Hugo page.
+
+- [x] Done on 2026-05-11: added a concrete map canvas to `layouts/shortcodes/race-viz.html`, loaded page-scoped MapLibre assets through `layouts/partials/head/css/race-viz.html` and `layouts/partials/head/js/race-viz.html`, initialized the published chart style from `assets/js/race-viz.js`, and covered the embeddable map contract in `race_map_component_test.go` plus updated asset gating in `race_asset_strategy_test.go`.
 
 Deliverables:
 - embeddable map container
@@ -136,6 +156,8 @@ Acceptance criteria:
 
 ### Task 2.3
 Resolve static-hosting implications of vector tiles.
+
+- [x] Done on 2026-05-11: documented the hosting workflow in `docs/race-tile-hosting-strategy.md`, published a machine-readable tile contract via `assets/race-viz/map/tile-manifest.json.tmpl` and `layouts/partials/race-viz/map-foundation.html`, exposed the hosting metadata on `race-viz` embeds, and added `race_tile_hosting_strategy_test.go`.
 
 Deliverables:
 - explicit V1 approach for tile serving or tile publishing
@@ -152,6 +174,8 @@ Acceptance criteria:
 ### Task 3.1
 Render course elements on the map.
 
+- [x] Done on 2026-05-11: loaded `course.json` into the shared MapLibre bootstrap, rendered connected course geometry plus dedicated mark/start-finish layers from `assets/js/race-viz.js`, exposed the stable layer contract in `layouts/shortcodes/race-viz.html`, and covered the slice with `race_course_rendering_test.go`.
+
 Deliverables:
 - marks
 - start line
@@ -164,6 +188,8 @@ Acceptance criteria:
 ### Task 3.2
 Support course styling consistent with the site aesthetic.
 
+- [x] Done on 2026-05-11: added the named `signal-v1` course palette and label-layer contract in `layouts/shortcodes/race-viz.html`, upgraded `assets/js/race-viz.js` with glow/casing/label treatment for course overlays, refined the editorial framing in `assets/css/race-viz.css`, and covered the styling slice with updated `race_course_rendering_test.go`.
+
 Deliverables:
 - route/mark visual treatment
 - dark retro-digital overlay palette aligned with the site style
@@ -174,6 +200,8 @@ Acceptance criteria:
 
 ### Task 3.3
 Implement the V1 land-crossing fallback.
+
+- [x] Done on 2026-05-11: exercised `controlPointsToNext` in the Bishop Rock reference `course.json`, documented the authored fallback in `docs/race-course-schema.md`, and added `race_course_land_fallback_test.go` plus a sample-dataset assertion in `race_sample_dataset_test.go` to verify manual shaping points expand the rendered leg in order.
 
 Deliverables:
 - support for manual intermediate control points in rendered course geometry
@@ -376,18 +404,16 @@ These are explicitly out of scope for initial implementation, but should remain 
 - synchronized prose-to-map storytelling effects
 - offshore/remote posting workflows
 
-## Recommended Execution Order
-Implement in this order unless blocked:
-
-1. Milestone 0
-2. Milestone 1
-3. Milestone 2
-4. Milestone 3
-5. Milestone 4
-6. Milestone 5
-7. Milestone 6
-8. Milestone 7
-9. Milestone 8
+## Milestone Checklist
+- [x] Milestone 0: Repository And Architecture Baseline
+- [x] Milestone 1: Data Contracts
+- [x] Milestone 2: Map Foundation
+- [ ] Milestone 3: Course Rendering
+- [ ] Milestone 4: Replay Engine
+- [ ] Milestone 5: Interaction Layer
+- [ ] Milestone 6: Hugo Page Integration
+- [ ] Milestone 7: Styling And UX Refinement
+- [ ] Milestone 8: Documentation And Authoring Workflow
 
 ## Definition Of Done For V1
 V1 is complete when:
