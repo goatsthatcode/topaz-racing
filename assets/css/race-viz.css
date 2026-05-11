@@ -100,6 +100,145 @@
     color: var(--race-viz-caption);
 }
 
+.race-viz-sidebar {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+}
+
+.race-viz-panel {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(126, 245, 236, 0.18);
+    border-radius: 0.85rem;
+    background:
+        linear-gradient(180deg, rgba(7, 16, 29, 0.82), rgba(4, 10, 19, 0.94)),
+        radial-gradient(circle at top left, rgba(126, 245, 236, 0.08), transparent 45%);
+}
+
+.race-viz-panel-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.race-viz-sidebar-title {
+    margin: 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(215, 246, 255, 0.92);
+}
+
+.race-viz-replay-time {
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    color: rgba(126, 245, 236, 0.96);
+}
+
+.race-viz-replay-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    align-items: center;
+}
+
+.race-viz-button,
+.race-viz-speed-select,
+.race-viz-timeline-input {
+    font: inherit;
+}
+
+.race-viz-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid rgba(126, 245, 236, 0.3);
+    border-radius: 999px;
+    color: rgba(225, 248, 255, 0.94);
+    background: linear-gradient(180deg, rgba(13, 32, 46, 0.96), rgba(7, 18, 30, 0.98));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.race-viz-button-secondary {
+    border-color: rgba(193, 222, 255, 0.18);
+    color: rgba(215, 233, 247, 0.88);
+}
+
+.race-viz-button:disabled,
+.race-viz-speed-select:disabled,
+.race-viz-timeline-input:disabled {
+    opacity: 0.52;
+    cursor: not-allowed;
+}
+
+.race-viz-speed-picker,
+.race-viz-timeline {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.race-viz-speed-picker span,
+.race-viz-timeline-label,
+.race-viz-timeline-scale {
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(198, 225, 238, 0.7);
+}
+
+.race-viz-speed-select {
+    min-height: 2.35rem;
+    padding: 0.5rem 2.1rem 0.5rem 0.75rem;
+    border: 1px solid rgba(126, 245, 236, 0.24);
+    border-radius: 0.75rem;
+    color: rgba(225, 248, 255, 0.94);
+    background: rgba(8, 18, 29, 0.95);
+}
+
+.race-viz-timeline-input {
+    width: 100%;
+    margin: 0;
+    accent-color: rgba(126, 245, 236, 0.94);
+}
+
+.race-viz-timeline-scale {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.race-viz-boat-legend {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.race-viz-boat-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: rgba(224, 244, 255, 0.85);
+    font-size: 0.94rem;
+}
+
+.race-viz-boat-legend-swatch {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 999px;
+    flex: 0 0 auto;
+    background: var(--race-viz-boat-color, rgba(255, 255, 255, 0.85));
+    box-shadow: 0 0 0 1px rgba(4, 14, 24, 0.9);
+}
+
 .race-viz-shell figcaption::before {
     content: "";
     width: 0.8rem;
@@ -110,4 +249,24 @@
         radial-gradient(circle, rgba(255, 255, 255, 0.8) 0 18%, transparent 22%),
         radial-gradient(circle, var(--race-viz-caption-accent) 0 58%, rgba(126, 245, 236, 0.12) 62%);
     box-shadow: 0 0 0.75rem rgba(126, 245, 236, 0.4);
+}
+
+@media (max-width: 42rem) {
+    .race-viz-panel-header,
+    .race-viz-timeline-scale {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .race-viz-replay-actions {
+        align-items: stretch;
+    }
+
+    .race-viz-speed-picker {
+        width: 100%;
+    }
+
+    .race-viz-speed-select {
+        width: 100%;
+    }
 }

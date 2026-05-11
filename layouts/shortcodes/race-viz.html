@@ -30,6 +30,8 @@
 {{- $courseMarksLayer := "race-viz-course-marks" -}}
 {{- $courseStartFinishLayer := "race-viz-course-start-finish" -}}
 {{- $courseLabelsLayer := "race-viz-course-labels" -}}
+{{- $tracksSource := "race-viz-tracks" -}}
+{{- $tracksLayer := "race-viz-tracks" -}}
 {{- $coursePalette := "signal-v1" -}}
 {{- if eq $mode "replay" -}}
     {{- $activeLayers = $sharedLayers -}}
@@ -43,6 +45,10 @@
     data-race-id="{{ $raceID }}"
     data-race-mode="{{ $mode }}"
     data-race-viz-course-state="idle"
+    data-race-viz-boats-state="idle"
+    data-race-viz-replay-state="idle"
+    data-race-viz-replay-time="0"
+    data-race-viz-replay-speed="1"
     data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
     data-race-viz-active-layers="{{ delimit $activeLayers " " }}"
     data-race-viz-map-style-url="{{ $mapFoundation.styleResource.Permalink }}"
@@ -57,6 +63,8 @@
     data-race-viz-course-marks-layer="{{ $courseMarksLayer }}"
     data-race-viz-course-start-finish-layer="{{ $courseStartFinishLayer }}"
     data-race-viz-course-labels-layer="{{ $courseLabelsLayer }}"
+    data-race-viz-tracks-source="{{ $tracksSource }}"
+    data-race-viz-tracks-layer="{{ $tracksLayer }}"
     data-course-url="{{ $course.RelPermalink }}"
     {{- with $boats }}
     data-boats-url="{{ .RelPermalink }}"
@@ -73,6 +81,49 @@
             </div>
         {{- end }}
     </div>
+    <aside class="race-viz-sidebar" data-race-viz-sidebar>
+        {{- if eq $mode "replay" -}}
+            <section class="race-viz-panel race-viz-panel-controls" data-race-viz-controls>
+                <div class="race-viz-panel-header">
+                    <h3 class="race-viz-sidebar-title">Replay</h3>
+                    <output class="race-viz-replay-time" data-race-viz-replay-current-label>00:00:00</output>
+                </div>
+                <div class="race-viz-replay-actions">
+                    <button type="button" class="race-viz-button" data-race-viz-play-toggle disabled>Play</button>
+                    <button type="button" class="race-viz-button race-viz-button-secondary" data-race-viz-replay-reset disabled>Reset</button>
+                    <label class="race-viz-speed-picker">
+                        <span>Speed</span>
+                        <select class="race-viz-speed-select" data-race-viz-replay-speed-select disabled>
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="4">4x</option>
+                            <option value="8">8x</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="race-viz-timeline">
+                    <span class="race-viz-timeline-label">Timeline</span>
+                    <input
+                        type="range"
+                        class="race-viz-timeline-input"
+                        data-race-viz-replay-timeline
+                        min="0"
+                        max="0"
+                        step="1000"
+                        value="0"
+                        disabled>
+                </label>
+                <div class="race-viz-timeline-scale">
+                    <output data-race-viz-replay-start-label>00:00:00</output>
+                    <output data-race-viz-replay-end-label>00:00:00</output>
+                </div>
+            </section>
+        {{- end }}
+        <section class="race-viz-panel race-viz-panel-fleet">
+            <h3 class="race-viz-sidebar-title">Fleet</h3>
+        <ul class="race-viz-boat-legend" data-race-viz-boat-legend></ul>
+        </section>
+    </aside>
     <figcaption>
         {{- if $raceParam -}}
             Race visualization embed for <code>{{ $raceID }}</code>.

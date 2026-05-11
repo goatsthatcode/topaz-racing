@@ -211,7 +211,7 @@ Acceptance criteria:
 ### Task 3.3
 Implement the V1 land-crossing fallback.
 
-- [x] Done on 2026-05-11: exercised `controlPointsToNext` in the Bishop Rock reference `course.json`, documented the authored fallback in `docs/race-course-schema.md`, and added `race_course_land_fallback_test.go` plus a sample-dataset assertion in `race_sample_dataset_test.go` to verify manual shaping points expand the rendered leg in order.
+- [x] Done on 2026-05-11: added `controlPointsToNext` support to the shared course route expansion in `assets/js/race-viz.js`, documented the authored fallback in `docs/race-course-schema.md`, and covered both straight-leg and manual-shaping behavior in `race_course_land_fallback_test.go`.
 
 Deliverables:
 - support for manual intermediate control points in rendered course geometry
@@ -221,6 +221,8 @@ Acceptance criteria:
 
 ### Task 3.4
 Implement standalone `course` mode as a first-class view.
+
+- [x] Done on 2026-05-11: allowed `layouts/shortcodes/race-viz.html` to render `mode="course"` without `boats.json`, kept the shared-layer contract in `assets/js/race-viz.js`, and covered both course-only embeds and shared-engine behavior in `race_embed_shortcode_test.go` plus `race_visualization_architecture_test.go`.
 
 Deliverables:
 - embeddable/view-only course visualization using the shared engine
@@ -236,6 +238,8 @@ Acceptance criteria:
 ### Task 4.1
 Render static boat tracks for all boats in a race.
 
+- [x] Done on 2026-05-11: loaded `boats.json` into the shared replay bootstrap, rendered per-boat static track layers plus sidebar legend hooks from `assets/js/race-viz.js` and `layouts/shortcodes/race-viz.html`, refined the fleet presentation in `assets/css/race-viz.css`, and covered the replay track contract with `race_replay_tracks_test.go`.
+
 Deliverables:
 - polylines for self and competitors
 - per-boat color support
@@ -247,6 +251,8 @@ Acceptance criteria:
 ### Task 4.2
 Implement time-based replay state.
 
+- [x] Done on 2026-05-11: normalized replay time bounds and per-boat interpolation in `assets/js/race-viz.js`, exposed stable replay clock state through `layouts/shortcodes/race-viz.html`, and covered the clock contract plus interpolation-ready sample data in `race_replay_tracks_test.go`.
+
 Deliverables:
 - normalized replay clock
 - time bounds based on track data
@@ -257,6 +263,8 @@ Acceptance criteria:
 
 ### Task 4.3
 Implement replay controls.
+
+- [x] Done on 2026-05-11: added a replay control panel in `layouts/shortcodes/race-viz.html`, wired play/pause, speed, scrub, and reset behavior through the shared clock state in `assets/js/race-viz.js`, refined the control styling in `assets/css/race-viz.css`, and covered the control contract in `race_replay_tracks_test.go`.
 
 Deliverables:
 - play/pause
@@ -325,6 +333,8 @@ Acceptance criteria:
 ### Task 6.1
 Build the shortcode or embed wrapper for race visualizations.
 
+- [x] Done on 2026-05-11: built the `race-viz` shortcode in `layouts/shortcodes/race-viz.html`, supported race lookup by bundle ID, and covered canonical race-page and prose-page embeds in `race_embed_shortcode_test.go`.
+
 Deliverables:
 - Hugo integration that references a race dataset by ID
 - page-side mounting point for the visualization
@@ -345,6 +355,8 @@ Acceptance criteria:
 
 ### Task 6.3
 Ensure the visualization can coexist with ordinary blog content.
+
+- [x] Done on 2026-05-11: kept race assets page-scoped in `layouts/_default/single.html` plus `layouts/partials/head/css/race-viz.html` and `layouts/partials/head/js/race-viz.html`, and verified race pages load the assets while ordinary pages stay clean in `race_asset_strategy_test.go`.
 
 Deliverables:
 - non-race posts remain unaffected
@@ -418,7 +430,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 0: Repository And Architecture Baseline
 - [x] Milestone 1: Data Contracts
 - [x] Milestone 2: Map Foundation
-- [ ] Milestone 3: Course Rendering
+- [x] Milestone 3: Course Rendering
 - [ ] Milestone 4: Replay Engine
 - [ ] Milestone 5: Interaction Layer
 - [ ] Milestone 6: Hugo Page Integration

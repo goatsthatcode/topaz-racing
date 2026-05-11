@@ -4,6 +4,8 @@ const DEFAULT_COURSE_ROUTE_LAYER_ID = "race-viz-course-route";
 const DEFAULT_COURSE_MARKS_LAYER_ID = "race-viz-course-marks";
 const DEFAULT_COURSE_START_FINISH_LAYER_ID = "race-viz-course-start-finish";
 const DEFAULT_COURSE_LABELS_LAYER_ID = "race-viz-course-labels";
+const DEFAULT_TRACKS_SOURCE_ID = "race-viz-tracks";
+const DEFAULT_TRACKS_LAYER_ID = "race-viz-tracks";
 const DEFAULT_COURSE_PALETTE = "signal-v1";
 const DEFAULT_MAP_FIT_PADDING = 48;
 const DEFAULT_MAP_FIT_MAX_ZOOM = 9.25;
@@ -71,6 +73,10 @@ function createRaceVizConfig(root) {
         root.dataset.raceVizCourseLabelsLayer ?? DEFAULT_COURSE_LABELS_LAYER_ID,
       palette: root.dataset.raceVizCoursePalette ?? DEFAULT_COURSE_PALETTE,
     },
+    tracks: {
+      sourceID: root.dataset.raceVizTracksSource ?? DEFAULT_TRACKS_SOURCE_ID,
+      layerID: root.dataset.raceVizTracksLayer ?? DEFAULT_TRACKS_LAYER_ID,
+    },
     boatsURL: root.dataset.boatsUrl ?? "",
     eventsURL: root.dataset.eventsUrl ?? "",
   };
@@ -91,14 +97,27 @@ function createRaceVizState(config) {
     course: {
       status: "idle",
     },
+    boats: {
+      status: "idle",
+    },
     map: {
       instance: null,
       status: "idle",
     },
     replay: {
-      time: 0,
+      status: "idle",
+      startTime: "",
+      endTime: "",
+      startTimeMs: 0,
+      endTimeMs: 0,
+      durationMs: 0,
+      currentTimeMs: 0,
       playing: false,
       speed: 1,
+      timeline: null,
+      snapshot: null,
+      animationFrameID: 0,
+      lastFrameMs: 0,
     },
   };
 }
@@ -157,6 +176,23 @@ function getCourseLayer(stage) {
   return stage.querySelector('[data-race-viz-layer="course"]');
 }
 
+function getBoatLegend(root) {
+  return root.querySelector("[data-race-viz-boat-legend]");
+}
+
+function getReplayControls(root) {
+  return {
+    panel: root.querySelector("[data-race-viz-controls]"),
+    playToggle: root.querySelector("[data-race-viz-play-toggle]"),
+    reset: root.querySelector("[data-race-viz-replay-reset]"),
+    speedSelect: root.querySelector("[data-race-viz-replay-speed-select]"),
+    timeline: root.querySelector("[data-race-viz-replay-timeline]"),
+    currentLabel: root.querySelector("[data-race-viz-replay-current-label]"),
+    startLabel: root.querySelector("[data-race-viz-replay-start-label]"),
+    endLabel: root.querySelector("[data-race-viz-replay-end-label]"),
+  };
+}
+
 function renderMapFallback(stage, message) {
   const canvas = getMapCanvas(stage);
   if (!canvas) {
@@ -206,6 +242,116 @@ function setCourseState(root, stage, state, status, message = "") {
   root.dataset.raceVizCourseState = status;
   stage.dataset.raceVizCourseState = status;
   renderCourseFallback(stage, message);
+}
+
+function setBoatsState(root, stage, state, status) {
+  state.boats.status = status;
+  root.dataset.raceVizBoatsState = status;
+  stage.dataset.raceVizBoatsState = status;
+}
+
+function setReplayClockState(root, state, status) {
+  state.replay.status = status;
+  root.dataset.raceVizReplayState = status;
+}
+
+function syncReplayClockDataset(root, replay) {
+  root.dataset.raceVizReplayTime = String(replay.currentTimeMs ?? 0);
+  root.dataset.raceVizReplaySpeed = String(replay.speed ?? 1);
+  root.dataset.raceVizReplayPlaying = String(Boolean(replay.playing));
+
+  if (!replay.startTime || !replay.endTime) {
+    delete root.dataset.raceVizReplayStart;
+    delete root.dataset.raceVizReplayEnd;
+    delete root.dataset.raceVizReplayDuration;
+    return;
+  }
+
+  root.dataset.raceVizReplayStart = replay.startTime;
+  root.dataset.raceVizReplayEnd = replay.endTime;
+  root.dataset.raceVizReplayDuration = String(replay.durationMs ?? 0);
+}
+
+function formatReplayClockLabel(timestampMs) {
+  if (!timestampMs) {
+    return "00:00:00";
+  }
+
+  return new Date(timestampMs).toISOString().slice(11, 19);
+}
+
+function syncReplayControls(root, state) {
+  const controls = getReplayControls(root);
+  if (!controls.panel) {
+    return;
+  }
+
+  const ready = state.replay.status === "ready" && state.replay.timeline;
+  const disabled = !ready;
+
+  controls.playToggle?.toggleAttribute("disabled", disabled);
+  controls.reset?.toggleAttribute("disabled", disabled);
+  controls.speedSelect?.toggleAttribute("disabled", disabled);
+  controls.timeline?.toggleAttribute("disabled", disabled);
+
+  if (controls.playToggle) {
+    controls.playToggle.textContent = state.replay.playing ? "Pause" : "Play";
+  }
+
+  if (controls.speedSelect) {
+    controls.speedSelect.value = String(state.replay.speed ?? 1);
+  }
+
+  if (controls.currentLabel) {
+    controls.currentLabel.textContent = formatReplayClockLabel(state.replay.currentTimeMs);
+  }
+
+  if (controls.startLabel) {
+    controls.startLabel.textContent = formatReplayClockLabel(state.replay.startTimeMs);
+  }
+
+  if (controls.endLabel) {
+    controls.endLabel.textContent = formatReplayClockLabel(state.replay.endTimeMs);
+  }
+
+  if (controls.timeline) {
+    controls.timeline.min = "0";
+    controls.timeline.max = String(state.replay.durationMs ?? 0);
+    controls.timeline.step = "1000";
+    controls.timeline.value = String(
+      Math.max(0, (state.replay.currentTimeMs ?? 0) - (state.replay.startTimeMs ?? 0)),
+    );
+  }
+}
+
+function renderBoatLegend(root, boats) {
+  const legend = getBoatLegend(root);
+  if (!legend) {
+    return;
+  }
+
+  legend.replaceChildren();
+
+  for (const boat of boats) {
+    const item = document.createElement("li");
+    item.className = "race-viz-boat-legend-item";
+    item.dataset.raceVizBoatLegendItem = boat.id ?? "";
+    item.dataset.raceVizBoatColor = boat.color ?? "";
+    item.dataset.raceVizBoatRole = boat.isSelf ? "self" : "competitor";
+
+    const swatch = document.createElement("span");
+    swatch.className = "race-viz-boat-legend-swatch";
+    swatch.dataset.raceVizBoatLegendSwatch = "";
+    swatch.style.setProperty("--race-viz-boat-color", boat.color ?? "#ffffff");
+    swatch.setAttribute("aria-hidden", "true");
+
+    const label = document.createElement("span");
+    label.className = "race-viz-boat-legend-label";
+    label.textContent = boat.name ?? boat.id ?? "Boat";
+
+    item.append(swatch, label);
+    legend.append(item);
+  }
 }
 
 function initializeMap(root, stage, state) {
@@ -347,6 +493,286 @@ function buildCourseFeatures(course) {
     type: "FeatureCollection",
     features,
   };
+}
+
+function buildBoatTrackFeatures(payload) {
+  return {
+    type: "FeatureCollection",
+    features: (payload.boats ?? [])
+      .filter((boat) => Array.isArray(boat.track) && boat.track.length >= 2)
+      .map((boat) => ({
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: boat.track.map((point) => [point.lon, point.lat]),
+        },
+        properties: {
+          featureType: "boat-track",
+          id: boat.id ?? "",
+          name: boat.name ?? "",
+          color: boat.color ?? "#ffffff",
+          boatType: boat.boatType ?? "",
+          source: boat.source ?? "",
+          isSelf: Boolean(boat.isSelf),
+          pointCount: boat.track.length,
+        },
+      })),
+  };
+}
+
+function normalizeTrackPoint(point) {
+  const timestampMs = Date.parse(point.time);
+  if (Number.isNaN(timestampMs)) {
+    throw new Error(`Invalid track timestamp ${JSON.stringify(point.time)}.`);
+  }
+
+  return {
+    time: point.time,
+    timestampMs,
+    lat: point.lat,
+    lon: point.lon,
+  };
+}
+
+function normalizeBoatReplayTrack(boat) {
+  const track = (boat.track ?? []).map(normalizeTrackPoint);
+  if (track.length === 0) {
+    throw new Error(`Boat ${JSON.stringify(boat.id ?? "")} is missing replay track points.`);
+  }
+
+  for (let index = 1; index < track.length; index += 1) {
+    if (track[index].timestampMs <= track[index - 1].timestampMs) {
+      throw new Error(`Boat ${JSON.stringify(boat.id ?? "")} replay times must be strictly increasing.`);
+    }
+  }
+
+  return {
+    ...boat,
+    track,
+    startTime: track[0].time,
+    endTime: track[track.length - 1].time,
+    startTimeMs: track[0].timestampMs,
+    endTimeMs: track[track.length - 1].timestampMs,
+  };
+}
+
+function buildReplayTimeline(payload) {
+  const boats = (payload.boats ?? []).map(normalizeBoatReplayTrack);
+  if (boats.length === 0) {
+    throw new Error("Replay payload must include at least one boat.");
+  }
+
+  let startBoat = boats[0];
+  let endBoat = boats[0];
+  for (const boat of boats.slice(1)) {
+    if (boat.startTimeMs < startBoat.startTimeMs) {
+      startBoat = boat;
+    }
+    if (boat.endTimeMs > endBoat.endTimeMs) {
+      endBoat = boat;
+    }
+  }
+
+  return {
+    boats,
+    startTime: startBoat.startTime,
+    endTime: endBoat.endTime,
+    startTimeMs: startBoat.startTimeMs,
+    endTimeMs: endBoat.endTimeMs,
+    durationMs: endBoat.endTimeMs - startBoat.startTimeMs,
+  };
+}
+
+function interpolateBoatPosition(boat, timeMs) {
+  const { track } = boat;
+
+  if (timeMs <= boat.startTimeMs) {
+    const point = track[0];
+    return {
+      id: boat.id ?? "",
+      lat: point.lat,
+      lon: point.lon,
+      timeMs: boat.startTimeMs,
+      segmentStartTimeMs: boat.startTimeMs,
+      segmentEndTimeMs: boat.startTimeMs,
+      progress: 0,
+    };
+  }
+
+  if (timeMs >= boat.endTimeMs) {
+    const point = track[track.length - 1];
+    return {
+      id: boat.id ?? "",
+      lat: point.lat,
+      lon: point.lon,
+      timeMs: boat.endTimeMs,
+      segmentStartTimeMs: boat.endTimeMs,
+      segmentEndTimeMs: boat.endTimeMs,
+      progress: 1,
+    };
+  }
+
+  for (let index = 1; index < track.length; index += 1) {
+    const previous = track[index - 1];
+    const next = track[index];
+
+    if (timeMs > next.timestampMs) {
+      continue;
+    }
+
+    const segmentDuration = next.timestampMs - previous.timestampMs;
+    const progress = segmentDuration === 0 ? 0 : (timeMs - previous.timestampMs) / segmentDuration;
+
+    return {
+      id: boat.id ?? "",
+      lat: previous.lat + ((next.lat - previous.lat) * progress),
+      lon: previous.lon + ((next.lon - previous.lon) * progress),
+      timeMs,
+      segmentStartTimeMs: previous.timestampMs,
+      segmentEndTimeMs: next.timestampMs,
+      progress,
+    };
+  }
+
+  const point = track[track.length - 1];
+  return {
+    id: boat.id ?? "",
+    lat: point.lat,
+    lon: point.lon,
+    timeMs: boat.endTimeMs,
+    segmentStartTimeMs: boat.endTimeMs,
+    segmentEndTimeMs: boat.endTimeMs,
+    progress: 1,
+  };
+}
+
+function buildReplaySnapshot(timeline, requestedTimeMs) {
+  const timeMs = Math.min(
+    Math.max(requestedTimeMs, timeline.startTimeMs),
+    timeline.endTimeMs,
+  );
+
+  return {
+    timeMs,
+    boats: timeline.boats.map((boat) => ({
+      id: boat.id ?? "",
+      name: boat.name ?? boat.id ?? "Boat",
+      color: boat.color ?? "#ffffff",
+      isSelf: Boolean(boat.isSelf),
+      position: interpolateBoatPosition(boat, timeMs),
+    })),
+  };
+}
+
+function stopReplayPlayback(state) {
+  if (state.replay.animationFrameID) {
+    window.cancelAnimationFrame(state.replay.animationFrameID);
+  }
+
+  state.replay.animationFrameID = 0;
+  state.replay.lastFrameMs = 0;
+  state.replay.playing = false;
+}
+
+function setReplayTime(root, state, requestedTimeMs) {
+  if (!state.replay.timeline) {
+    return;
+  }
+
+  state.replay.currentTimeMs = Math.min(
+    Math.max(requestedTimeMs, state.replay.startTimeMs),
+    state.replay.endTimeMs,
+  );
+  state.replay.snapshot = buildReplaySnapshot(state.replay.timeline, state.replay.currentTimeMs);
+  syncReplayClockDataset(root, state.replay);
+  syncReplayControls(root, state);
+}
+
+function resetReplay(root, state) {
+  stopReplayPlayback(state);
+  setReplayTime(root, state, state.replay.startTimeMs);
+}
+
+function startReplayPlayback(root, state) {
+  if (!state.replay.timeline || state.replay.playing) {
+    return;
+  }
+
+  if (state.replay.currentTimeMs >= state.replay.endTimeMs) {
+    setReplayTime(root, state, state.replay.startTimeMs);
+  }
+
+  state.replay.playing = true;
+  state.replay.lastFrameMs = 0;
+  syncReplayClockDataset(root, state.replay);
+  syncReplayControls(root, state);
+
+  const step = (frameMs) => {
+    if (!state.replay.playing) {
+      return;
+    }
+
+    if (!state.replay.lastFrameMs) {
+      state.replay.lastFrameMs = frameMs;
+    }
+
+    const elapsedMs = frameMs - state.replay.lastFrameMs;
+    state.replay.lastFrameMs = frameMs;
+
+    const nextTimeMs = state.replay.currentTimeMs + (elapsedMs * state.replay.speed);
+    if (nextTimeMs >= state.replay.endTimeMs) {
+      stopReplayPlayback(state);
+      setReplayTime(root, state, state.replay.endTimeMs);
+      return;
+    }
+
+    setReplayTime(root, state, nextTimeMs);
+    state.replay.animationFrameID = window.requestAnimationFrame(step);
+  };
+
+  state.replay.animationFrameID = window.requestAnimationFrame(step);
+}
+
+function attachReplayControls(root, state) {
+  const controls = getReplayControls(root);
+  if (!controls.panel) {
+    return;
+  }
+
+  controls.playToggle?.addEventListener("click", () => {
+    if (state.replay.playing) {
+      stopReplayPlayback(state);
+      syncReplayClockDataset(root, state.replay);
+      syncReplayControls(root, state);
+      return;
+    }
+
+    startReplayPlayback(root, state);
+  });
+
+  controls.reset?.addEventListener("click", () => {
+    resetReplay(root, state);
+  });
+
+  controls.speedSelect?.addEventListener("change", (event) => {
+    const nextSpeed = Number.parseFloat(event.target.value);
+    if (Number.isFinite(nextSpeed) && nextSpeed > 0) {
+      state.replay.speed = nextSpeed;
+      syncReplayClockDataset(root, state.replay);
+      syncReplayControls(root, state);
+    }
+  });
+
+  controls.timeline?.addEventListener("input", (event) => {
+    const nextOffsetMs = Number.parseInt(event.target.value, 10);
+    if (!Number.isFinite(nextOffsetMs)) {
+      return;
+    }
+
+    setReplayTime(root, state, state.replay.startTimeMs + nextOffsetMs);
+  });
+
+  syncReplayControls(root, state);
 }
 
 function upsertCourseSource(map, state, data) {
@@ -492,6 +918,67 @@ function renderCourseLayers(map, state) {
   });
 }
 
+function upsertTracksSource(map, state, data) {
+  const source = map.getSource(state.config.tracks.sourceID);
+  if (source) {
+    source.setData(data);
+    return;
+  }
+
+  map.addSource(state.config.tracks.sourceID, {
+    type: "geojson",
+    data,
+  });
+}
+
+function renderTrackLayers(map, state) {
+  const source = state.config.tracks.sourceID;
+  const layerID = state.config.tracks.layerID;
+
+  ensureCourseLayer(map, `${layerID}-casing`, {
+    type: "line",
+    source,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": "rgba(5, 14, 24, 0.92)",
+      "line-width": [
+        "case",
+        ["boolean", ["get", "isSelf"], false],
+        6,
+        5,
+      ],
+      "line-opacity": 0.88,
+    },
+  });
+
+  ensureCourseLayer(map, layerID, {
+    type: "line",
+    source,
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": ["coalesce", ["get", "color"], "#ffffff"],
+      "line-width": [
+        "case",
+        ["boolean", ["get", "isSelf"], false],
+        3.25,
+        2.5,
+      ],
+      "line-opacity": [
+        "case",
+        ["boolean", ["get", "isSelf"], false],
+        0.95,
+        0.78,
+      ],
+    },
+  });
+}
+
 function fitCourseBounds(map, courseFeatures) {
   const coordinates = [];
 
@@ -558,6 +1045,52 @@ async function loadCourse(root, stage, state, mapReadyPromise) {
   }
 }
 
+async function loadBoats(root, stage, state, mapReadyPromise) {
+  if (!state.config.activeLayers.includes("tracks")) {
+    return;
+  }
+
+  setBoatsState(root, stage, state, "loading");
+  setReplayClockState(root, state, "loading");
+  syncReplayControls(root, state);
+
+  try {
+    const payload = await fetchJSON(state.config.boatsURL);
+    const trackFeatures = buildBoatTrackFeatures(payload);
+    const timeline = buildReplayTimeline(payload);
+
+    state.data.boats = payload;
+    state.replay.timeline = timeline;
+    state.replay.startTime = timeline.startTime;
+    state.replay.endTime = timeline.endTime;
+    state.replay.startTimeMs = timeline.startTimeMs;
+    state.replay.endTimeMs = timeline.endTimeMs;
+    state.replay.durationMs = timeline.durationMs;
+    state.replay.currentTimeMs = timeline.startTimeMs;
+    state.replay.snapshot = buildReplaySnapshot(timeline, timeline.startTimeMs);
+    root.dataset.raceVizBoatCount = String(payload.boats?.length ?? 0);
+    root.dataset.raceVizSelfBoatId =
+      payload.boats?.find((boat) => boat.isSelf)?.id ?? "";
+    syncReplayClockDataset(root, state.replay);
+
+    renderBoatLegend(root, payload.boats ?? []);
+    syncReplayControls(root, state);
+
+    const map = await mapReadyPromise;
+    upsertTracksSource(map, state, trackFeatures);
+    renderTrackLayers(map, state);
+    setBoatsState(root, stage, state, "ready");
+    setReplayClockState(root, state, "ready");
+    syncReplayControls(root, state);
+  } catch (error) {
+    stopReplayPlayback(state);
+    setBoatsState(root, stage, state, "error");
+    setReplayClockState(root, state, "error");
+    syncReplayClockDataset(root, state.replay);
+    syncReplayControls(root, state);
+  }
+}
+
 function bootRaceVizRoot(root) {
   if (root.dataset.raceVizBooted === "true") {
     return;
@@ -574,9 +1107,14 @@ function bootRaceVizRoot(root) {
   ensureLayerScaffold(stage, config.sharedLayers);
   applyModeToStage(stage, state);
   setCourseState(root, stage, state, "idle");
+  setBoatsState(root, stage, state, "idle");
+  setReplayClockState(root, state, "idle");
+  syncReplayClockDataset(root, state.replay);
+  attachReplayControls(root, state);
 
   const mapReadyPromise = initializeMap(root, stage, state);
   void loadCourse(root, stage, state, mapReadyPromise);
+  void loadBoats(root, stage, state, mapReadyPromise);
 
   root.dataset.raceVizBooted = "true";
   root.dataset.raceVizState = "ready";

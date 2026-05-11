@@ -37,6 +37,60 @@ func TestReferenceRaceCourseUsesStraightRouteSegment(t *testing.T) {
 	}
 }
 
+func TestCourseRouteExpansionIncludesManualShapingPoints(t *testing.T) {
+	course := raceCourseFile{
+		ID:   "manual-shaping-test",
+		Name: "Manual Shaping Test",
+		Elements: []raceCourseElement{
+			{
+				ID:       "start",
+				Type:     "start_line",
+				Lat:      33.0,
+				Lon:      -118.0,
+				Rounding: "none",
+				ControlPointsToNext: []raceCoordinate{
+					{Lat: 33.1, Lon: -118.1},
+					{Lat: 33.2, Lon: -118.2},
+				},
+			},
+			{
+				ID:       "mark",
+				Type:     "mark",
+				Lat:      33.3,
+				Lon:      -118.3,
+				Rounding: "port",
+			},
+			{
+				ID:       "finish",
+				Type:     "finish_line",
+				Lat:      33.4,
+				Lon:      -118.4,
+				Rounding: "none",
+			},
+		},
+	}
+
+	expectedCoordinates := []raceCoordinate{
+		{Lat: 33.0, Lon: -118.0},
+		{Lat: 33.1, Lon: -118.1},
+		{Lat: 33.2, Lon: -118.2},
+		{Lat: 33.3, Lon: -118.3},
+		{Lat: 33.4, Lon: -118.4},
+	}
+
+	actualCoordinates := expandCourseRouteCoordinates(course)
+	if len(actualCoordinates) != len(expectedCoordinates) {
+		t.Fatalf("expected %d route coordinates, got %d", len(expectedCoordinates), len(actualCoordinates))
+	}
+
+	for i, expected := range expectedCoordinates {
+		actual := actualCoordinates[i]
+		if actual != expected {
+			t.Fatalf("expected route coordinate %d to be %+v, got %+v", i, expected, actual)
+		}
+	}
+}
+
 func expandCourseRouteCoordinates(course raceCourseFile) []raceCoordinate {
 	coordinates := make([]raceCoordinate, 0, len(course.Elements))
 
