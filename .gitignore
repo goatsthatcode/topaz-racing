@@ -1,5 +1,6 @@
 public/
 resources/_gen/
+.cache/
 .DS_Store
 *.tmp
 *.bak
