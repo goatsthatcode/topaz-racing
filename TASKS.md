@@ -327,6 +327,8 @@ Acceptance criteria:
 ### Task 5.3
 Implement event annotations.
 
+- [x] Done on 2026-05-11: added `buildEventFeatures` (resolves positions from lat/lon or interpolates from isSelf track), `renderEventLayers` (amber circle halo/fill + text label layers), `attachEventInteractions` (cursor change on hover, maplibregl.Popup click handler), `setEventsState`, and `loadEvents` (waits for boats before building features so timeline is available for interpolation) in `assets/js/race-viz.js`; added event popup CSS in `assets/css/race-viz.css`; added `data-race-viz-events-state="idle"` to `layouts/shortcodes/race-viz.html`; and covered the contract in `race_event_annotations_test.go`.
+
 Deliverables:
 - annotation markers or callouts on the map
 - event hover/click treatment

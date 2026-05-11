@@ -303,6 +303,64 @@
     box-shadow: 0 0 0.75rem rgba(126, 245, 236, 0.4);
 }
 
+.race-viz-event-popup .maplibregl-popup-content {
+    padding: 0.65rem 0.8rem;
+    border-radius: 0.65rem;
+    background: linear-gradient(180deg, rgba(10, 22, 36, 0.97), rgba(6, 14, 26, 0.99));
+    border: 1px solid rgba(255, 200, 60, 0.3);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.45);
+    color: rgba(240, 230, 200, 0.95);
+    font-size: 0.82rem;
+    backdrop-filter: blur(0.5rem);
+}
+
+.race-viz-event-popup .maplibregl-popup-tip {
+    border-top-color: rgba(10, 22, 36, 0.97);
+}
+
+.race-viz-event-popup .maplibregl-popup-close-button {
+    color: rgba(220, 200, 160, 0.7);
+    font-size: 1rem;
+    padding: 0.15rem 0.45rem;
+}
+
+.race-viz-event-popup-content {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.race-viz-event-popup-label {
+    display: block;
+    color: rgba(255, 215, 100, 0.98);
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.race-viz-event-popup-description {
+    display: block;
+    line-height: 1.4;
+    color: rgba(230, 220, 195, 0.9);
+}
+
+.race-viz-event-popup-time {
+    display: block;
+    font-variant-numeric: tabular-nums;
+    color: rgba(180, 210, 230, 0.75);
+    font-size: 0.76rem;
+}
+
+.race-viz-event-type {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(255, 200, 60, 0.18);
+    border: 1px solid rgba(255, 200, 60, 0.28);
+    color: rgba(255, 210, 100, 0.92);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 @media (max-width: 42rem) {
     .race-viz-panel-header,
     .race-viz-timeline-scale {

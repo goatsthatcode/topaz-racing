@@ -10,6 +10,8 @@ const DEFAULT_REPLAY_TAILS_SOURCE_ID = "race-viz-replay-tails";
 const DEFAULT_REPLAY_TAILS_LAYER_ID = "race-viz-replay-tails";
 const DEFAULT_BOAT_MARKERS_SOURCE_ID = "race-viz-boat-markers";
 const DEFAULT_BOAT_MARKERS_LAYER_ID = "race-viz-boat-markers";
+const DEFAULT_EVENTS_SOURCE_ID = "race-viz-events";
+const DEFAULT_EVENTS_LAYER_ID = "race-viz-events";
 const DEFAULT_COURSE_PALETTE = "signal-v1";
 const DEFAULT_MAP_FIT_PADDING = 48;
 const DEFAULT_MAP_FIT_MAX_ZOOM = 9.25;
@@ -91,6 +93,10 @@ function createRaceVizConfig(root) {
       sourceID: root.dataset.raceVizBoatMarkersSource ?? DEFAULT_BOAT_MARKERS_SOURCE_ID,
       layerID: root.dataset.raceVizBoatMarkersLayer ?? DEFAULT_BOAT_MARKERS_LAYER_ID,
     },
+    events: {
+      sourceID: root.dataset.raceVizEventsSource ?? DEFAULT_EVENTS_SOURCE_ID,
+      layerID: root.dataset.raceVizEventsLayer ?? DEFAULT_EVENTS_LAYER_ID,
+    },
     boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
     eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
   };
@@ -148,6 +154,10 @@ function createRaceVizState(config) {
     },
     visibility: {
       hiddenBoatIds: new Set(),
+    },
+    events: {
+      status: "idle",
+      activePopup: null,
     },
   };
 }
@@ -283,6 +293,11 @@ function setBoatsState(root, stage, state, status) {
   state.boats.status = status;
   root.dataset.raceVizBoatsState = status;
   stage.dataset.raceVizBoatsState = status;
+}
+
+function setEventsState(root, state, status) {
+  state.events.status = status;
+  root.dataset.raceVizEventsState = status;
 }
 
 function setReplayClockState(root, state, status) {
@@ -1478,6 +1493,192 @@ function renderReplayFrame(map, state) {
   upsertBoatMarkersSource(map, state, markerFeatures);
 }
 
+function formatEventTime(isoTime) {
+  if (!isoTime) {
+    return "";
+  }
+
+  const ts = Date.parse(isoTime);
+  if (Number.isNaN(ts)) {
+    return isoTime;
+  }
+
+  return new Date(ts).toISOString().slice(11, 19);
+}
+
+function buildEventFeatures(payload, timeline) {
+  const features = [];
+  const selfBoat = timeline?.boats.find((b) => Boolean(b.isSelf)) ?? null;
+
+  for (const event of payload.events ?? []) {
+    let lat = event.lat ?? null;
+    let lon = event.lon ?? null;
+
+    if ((lat == null || lon == null) && event.time && selfBoat) {
+      const timestampMs = Date.parse(event.time);
+      if (!Number.isNaN(timestampMs)) {
+        const pos = interpolateBoatPosition(selfBoat, timestampMs);
+        lat = pos.lat;
+        lon = pos.lon;
+      }
+    }
+
+    if (lat == null || lon == null) {
+      continue;
+    }
+
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [lon, lat],
+      },
+      properties: {
+        featureType: "event-annotation",
+        id: event.id ?? "",
+        type: event.type ?? "note",
+        time: event.time ?? "",
+        label: event.label ?? "",
+        description: event.description ?? "",
+      },
+    });
+  }
+
+  return { type: "FeatureCollection", features };
+}
+
+function upsertEventsSource(map, state, data) {
+  const source = map.getSource(state.config.events.sourceID);
+  if (source) {
+    source.setData(data);
+    return;
+  }
+
+  map.addSource(state.config.events.sourceID, { type: "geojson", data });
+}
+
+function renderEventLayers(map, state) {
+  const source = state.config.events.sourceID;
+  const layerID = state.config.events.layerID;
+
+  ensureCourseLayer(map, `${layerID}-halo`, {
+    type: "circle",
+    source,
+    paint: {
+      "circle-color": "rgba(5, 14, 24, 0.88)",
+      "circle-radius": 13,
+    },
+  });
+
+  ensureCourseLayer(map, layerID, {
+    type: "circle",
+    source,
+    paint: {
+      "circle-color": "rgba(255, 200, 60, 0.95)",
+      "circle-radius": 8,
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "rgba(255, 240, 180, 0.88)",
+    },
+  });
+
+  ensureCourseLayer(map, `${layerID}-label`, {
+    type: "symbol",
+    source,
+    filter: ["!=", ["get", "label"], ""],
+    layout: {
+      "text-field": ["get", "label"],
+      "text-size": 10.5,
+      "text-letter-spacing": 0.06,
+      "text-offset": [0, 1.6],
+      "text-anchor": "top",
+      "text-max-width": 12,
+    },
+    paint: {
+      "text-color": "rgba(255, 230, 160, 0.96)",
+      "text-halo-color": "rgba(6, 18, 28, 0.94)",
+      "text-halo-width": 1.5,
+      "text-halo-blur": 0.2,
+    },
+  });
+}
+
+function attachEventInteractions(map, state) {
+  const layerID = state.config.events.layerID;
+
+  map.on("mouseenter", layerID, () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+
+  map.on("mouseleave", layerID, () => {
+    map.getCanvas().style.cursor = "";
+  });
+
+  map.on("click", layerID, (event) => {
+    const feature = event.features?.[0];
+    if (!feature) {
+      return;
+    }
+
+    const props = feature.properties;
+    const coordinates = feature.geometry.coordinates.slice();
+    const parts = [];
+
+    if (props.label) {
+      parts.push(`<strong class="race-viz-event-popup-label">${props.label}</strong>`);
+    }
+    if (props.description) {
+      parts.push(`<span class="race-viz-event-popup-description">${props.description}</span>`);
+    }
+    if (props.time) {
+      parts.push(`<time class="race-viz-event-popup-time">${formatEventTime(props.time)}</time>`);
+    }
+    if (props.type) {
+      parts.push(`<span class="race-viz-event-type">${props.type.replace(/_/g, " ")}</span>`);
+    }
+
+    if (state.events.activePopup) {
+      state.events.activePopup.remove();
+      state.events.activePopup = null;
+    }
+
+    state.events.activePopup = new window.maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: false,
+      className: "race-viz-event-popup",
+      maxWidth: "240px",
+    })
+      .setLngLat(coordinates)
+      .setHTML(`<div class="race-viz-event-popup-content">${parts.join("")}</div>`)
+      .addTo(map);
+  });
+}
+
+async function loadEvents(root, stage, state, mapReadyPromise, boatsReadyPromise) {
+  if (!state.config.activeLayers.includes("events") || !state.config.eventsURL) {
+    return;
+  }
+
+  setEventsState(root, state, "loading");
+
+  try {
+    await boatsReadyPromise?.catch(() => {});
+
+    const [payload, map] = await Promise.all([
+      fetchJSON(state.config.eventsURL),
+      mapReadyPromise,
+    ]);
+
+    const eventFeatures = buildEventFeatures(payload, state.replay.timeline);
+    state.data.events = payload;
+    upsertEventsSource(map, state, eventFeatures);
+    renderEventLayers(map, state);
+    attachEventInteractions(map, state);
+    setEventsState(root, state, "ready");
+  } catch (error) {
+    setEventsState(root, state, "error");
+  }
+}
+
 async function loadCourse(root, stage, state, mapReadyPromise) {
   if (!state.config.activeLayers.includes("course")) {
     return;
@@ -1572,12 +1773,14 @@ function bootRaceVizRoot(root) {
   setCourseState(root, stage, state, "idle");
   setBoatsState(root, stage, state, "idle");
   setReplayClockState(root, state, "idle");
+  setEventsState(root, state, "idle");
   syncReplayClockDataset(root, state.replay);
   attachReplayControls(root, state);
 
   const mapReadyPromise = initializeMap(root, stage, state);
   void loadCourse(root, stage, state, mapReadyPromise);
-  void loadBoats(root, stage, state, mapReadyPromise);
+  const boatsReadyPromise = loadBoats(root, stage, state, mapReadyPromise);
+  void loadEvents(root, stage, state, mapReadyPromise, boatsReadyPromise);
 
   root.dataset.raceVizBooted = "true";
   root.dataset.raceVizState = "ready";
