@@ -1,13 +1,19 @@
 {{- $tileConfig := site.Params.raceViz.tiles | default dict -}}
 {{- $tileEndpoint := "" -}}
+{{- $fallbackTileEndpoint := "" -}}
 {{- $prototypePage := "/tiles/index.html" -}}
 {{- $prototypeStyle := "/tiles/style.json" -}}
 {{- if eq hugo.Environment "development" -}}
     {{- $tileEndpoint = $tileConfig.development | default "http://127.0.0.1:3000" -}}
+    {{- $fallbackTileEndpoint = $tileConfig.production | default "" -}}
 {{- else -}}
     {{- $tileEndpoint = $tileConfig.production | default (printf "%stiles" site.BaseURL) -}}
 {{- end -}}
 {{- $tileEndpoint = strings.TrimSuffix "/" $tileEndpoint -}}
+{{- $fallbackTileEndpoint = strings.TrimSuffix "/" $fallbackTileEndpoint -}}
+{{- if eq $fallbackTileEndpoint $tileEndpoint -}}
+    {{- $fallbackTileEndpoint = "" -}}
+{{- end -}}
 {{- $servingMode := $tileConfig.servingMode | default "external-static-vector-host" -}}
 {{- $previewCommand := $tileConfig.previewCommand | default "martin --config tiles/martin-config" -}}
 {{- $tileSets := $tileConfig.sets | default (slice (dict
@@ -46,9 +52,13 @@
 
 {{- return dict
     "defaultTileSet" $defaultTileSet
+    "fallbackTileEndpoint" $fallbackTileEndpoint
     "prototypePage" $prototypePage
     "prototypeStyle" $prototypeStyle
+    "previewCommand" $previewCommand
     "servingMode" $servingMode
+    "stylePath" (strings.TrimPrefix "/" (strings.TrimPrefix site.BaseURL $styleResource.Permalink))
+    "tileManifestPath" (strings.TrimPrefix "/" (strings.TrimPrefix site.BaseURL $tileManifestResource.Permalink))
     "tileEndpoint" $tileEndpoint
     "tileManifestResource" $tileManifestResource
     "styleResource" $styleResource

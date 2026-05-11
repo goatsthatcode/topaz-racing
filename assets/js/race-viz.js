@@ -52,16 +52,18 @@ function createRaceVizConfig(root) {
     sharedLayers,
     activeLayers,
     map: {
-      styleURL: root.dataset.raceVizMapStyleUrl ?? "",
+      styleURL: resolveRaceVizURL(root.dataset.raceVizMapStyleUrl ?? ""),
       tileEndpoint: root.dataset.raceVizMapTileEndpoint ?? "",
-      tileManifestURL: root.dataset.raceVizMapTileManifestUrl ?? "",
+      fallbackTileEndpoint: root.dataset.raceVizMapFallbackTileEndpoint ?? "",
+      tileManifestURL: resolveRaceVizURL(root.dataset.raceVizMapTileManifestUrl ?? ""),
       tileSet: root.dataset.raceVizMapTileSet ?? "",
+      previewCommand: root.dataset.raceVizMapPreviewCommand ?? "",
       servingMode: root.dataset.raceVizMapServingMode ?? "",
       prototypePage: root.dataset.raceVizMapPrototypePage ?? "",
       prototypeStyle: root.dataset.raceVizMapPrototypeStyle ?? "",
     },
     course: {
-      url: root.dataset.courseUrl ?? "",
+      url: resolveRaceVizURL(root.dataset.courseUrl ?? ""),
       sourceID: root.dataset.raceVizCourseSource ?? DEFAULT_COURSE_SOURCE_ID,
       routeLayerID:
         root.dataset.raceVizCourseRouteLayer ?? DEFAULT_COURSE_ROUTE_LAYER_ID,
@@ -77,9 +79,21 @@ function createRaceVizConfig(root) {
       sourceID: root.dataset.raceVizTracksSource ?? DEFAULT_TRACKS_SOURCE_ID,
       layerID: root.dataset.raceVizTracksLayer ?? DEFAULT_TRACKS_LAYER_ID,
     },
-    boatsURL: root.dataset.boatsUrl ?? "",
-    eventsURL: root.dataset.eventsUrl ?? "",
+    boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
+    eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
   };
+}
+
+function resolveRaceVizURL(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (/^[a-z]+:\/\//i.test(value) || value.startsWith("//")) {
+    return value;
+  }
+
+  return new URL(`/${value.replace(/^\/+/, "")}`, window.location.origin).toString();
 }
 
 function getCourseStyle(config) {
@@ -199,9 +213,16 @@ function renderMapFallback(stage, message) {
     return;
   }
 
+  const existing = canvas.querySelector("[data-race-viz-map-fallback]");
+  if (!message) {
+    existing?.remove();
+    return;
+  }
+
   canvas.replaceChildren();
   const fallback = document.createElement("div");
   fallback.className = "race-viz-map-fallback";
+  fallback.dataset.raceVizMapFallback = "";
   fallback.textContent = message;
   canvas.append(fallback);
 }
@@ -232,9 +253,7 @@ function setMapState(root, stage, state, status, message = "") {
   state.map.status = status;
   root.dataset.raceVizMapState = status;
   stage.dataset.raceVizMapState = status;
-  if (message) {
-    renderMapFallback(stage, message);
-  }
+  renderMapFallback(stage, message);
 }
 
 function setCourseState(root, stage, state, status, message = "") {
@@ -355,7 +374,72 @@ function renderBoatLegend(root, boats) {
 }
 
 function initializeMap(root, stage, state) {
-  const canvas = getMapCanvas(stage);
+  return initializeMapWithFallback(root, stage, state);
+}
+
+function normalizeEndpoint(value) {
+  return (value ?? "").replace(/\/+$/, "");
+}
+
+async function fetchMapStyleDefinition(styleURL) {
+  const response = await window.fetch(styleURL, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Map style request failed with status ${response.status}.`);
+  }
+
+  return response.json();
+}
+
+function replaceTileEndpointInStyle(style, currentEndpoint, nextEndpoint) {
+  const sourceEndpoint = normalizeEndpoint(currentEndpoint);
+  const targetEndpoint = normalizeEndpoint(nextEndpoint);
+  if (!sourceEndpoint || !targetEndpoint || sourceEndpoint === targetEndpoint) {
+    return style;
+  }
+
+  const nextStyle = JSON.parse(JSON.stringify(style));
+  for (const source of Object.values(nextStyle.sources ?? {})) {
+    if (!source || !Array.isArray(source.tiles)) {
+      continue;
+    }
+
+    source.tiles = source.tiles.map((tileURL) =>
+      typeof tileURL === "string" ? tileURL.replace(sourceEndpoint, targetEndpoint) : tileURL,
+    );
+  }
+
+  return nextStyle;
+}
+
+async function buildMapStyleVariants(config) {
+  const styleDefinition = await fetchMapStyleDefinition(config.styleURL);
+  const primaryEndpoint = normalizeEndpoint(config.tileEndpoint);
+  const fallbackEndpoint = normalizeEndpoint(config.fallbackTileEndpoint);
+  const variants = [
+    {
+      kind: "primary",
+      style: styleDefinition,
+      tileEndpoint: primaryEndpoint,
+    },
+  ];
+
+  if (fallbackEndpoint && fallbackEndpoint !== primaryEndpoint) {
+    variants.push({
+      kind: "fallback",
+      style: replaceTileEndpointInStyle(styleDefinition, primaryEndpoint, fallbackEndpoint),
+      tileEndpoint: fallbackEndpoint,
+    });
+  }
+
+  return variants;
+}
+
+function createMapInstance(root, stage, state, canvas, variant) {
   if (!canvas) {
     setMapState(root, stage, state, "error", "Race map container is missing.");
     return Promise.reject(new Error("Race map container is missing."));
@@ -371,12 +455,10 @@ function initializeMap(root, stage, state) {
     return Promise.reject(new Error("Map runtime failed to load."));
   }
 
-  setMapState(root, stage, state, "booting");
-
   return new Promise((resolve, reject) => {
     const map = new window.maplibregl.Map({
       container: canvas,
-      style: state.config.map.styleURL,
+      style: variant.style,
       attributionControl: false,
     });
 
@@ -389,6 +471,7 @@ function initializeMap(root, stage, state) {
 
       settled = true;
       setMapState(root, stage, state, "error", message);
+      root.dataset.raceVizMapVariant = variant.kind;
       reject(new Error(message));
     }
 
@@ -400,17 +483,62 @@ function initializeMap(root, stage, state) {
 
       settled = true;
       setMapState(root, stage, state, "ready");
+      root.dataset.raceVizMapVariant = variant.kind;
+      root.dataset.raceVizMapActiveTileEndpoint = variant.tileEndpoint;
       map.resize();
       resolve(map);
     });
-    map.on("error", () => {
+    map.on("error", (event) => {
       if (state.map.status !== "ready") {
-        fail("Race map failed to initialize.");
+        const errorMessage = event?.error?.message ?? "Race map failed to initialize.";
+        fail(errorMessage);
       }
     });
 
     state.map.instance = map;
   });
+}
+
+async function initializeMapWithFallback(root, stage, state) {
+  const canvas = getMapCanvas(stage);
+  if (!canvas) {
+    setMapState(root, stage, state, "error", "Race map container is missing.");
+    throw new Error("Race map container is missing.");
+  }
+
+  if (!state.config.map.styleURL) {
+    setMapState(root, stage, state, "error", "Race map style URL is missing.");
+    throw new Error("Race map style URL is missing.");
+  }
+
+  if (!window.maplibregl?.Map) {
+    setMapState(root, stage, state, "error", "Map runtime failed to load.");
+    throw new Error("Map runtime failed to load.");
+  }
+
+  const variants = await buildMapStyleVariants(state.config.map);
+  let lastError = null;
+
+  for (const [index, variant] of variants.entries()) {
+    setMapState(root, stage, state, "booting");
+    try {
+      return await createMapInstance(root, stage, state, canvas, variant);
+    } catch (error) {
+      lastError = error;
+      state.map.instance?.remove();
+      state.map.instance = null;
+      if (index === variants.length - 1) {
+        break;
+      }
+    }
+  }
+
+  const previewCommand = state.config.map.previewCommand;
+  const message = previewCommand
+    ? `Race map failed to initialize. Start the local tile server with "${previewCommand}" or verify the fallback tile host.`
+    : "Race map failed to initialize.";
+  setMapState(root, stage, state, "error", message);
+  throw lastError ?? new Error(message);
 }
 
 async function fetchJSON(url) {

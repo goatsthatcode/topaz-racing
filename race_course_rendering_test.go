@@ -62,6 +62,8 @@ func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
 		`line-dasharray`,
 		`line-blur`,
 		`circle-radius`,
+		`fallbackTileEndpoint`,
+		`replaceTileEndpointInStyle`,
 	}
 
 	for _, snippet := range expectedSnippets {

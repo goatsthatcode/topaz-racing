@@ -31,9 +31,9 @@ func TestRaceVizShortcodeBuildsReferenceRacePage(t *testing.T) {
 		`data-race-viz`,
 		`data-race-id="dan-byrne-2025/bishop-rock-race"`,
 		`data-race-mode="replay"`,
-		`data-course-url="https://topaz-racing.com/races/dan-byrne-2025/bishop-rock-race/course.json"`,
-		`data-boats-url="https://topaz-racing.com/races/dan-byrne-2025/bishop-rock-race/boats.json"`,
-		`data-events-url="https://topaz-racing.com/races/dan-byrne-2025/bishop-rock-race/events.json"`,
+		`data-course-url="races/dan-byrne-2025/bishop-rock-race/course.json"`,
+		`data-boats-url="races/dan-byrne-2025/bishop-rock-race/boats.json"`,
+		`data-events-url="races/dan-byrne-2025/bishop-rock-race/events.json"`,
 	}
 
 	for _, snippet := range expectedSnippets {
@@ -98,7 +98,7 @@ title: "Race Viz Course Only Test"
 	expectedSnippets := []string{
 		`data-race-id="test-season/course-only-race"`,
 		`data-race-mode="course"`,
-		`data-course-url="https://topaz-racing.com/races/test-season/course-only-race/course.json"`,
+		`data-course-url="races/test-season/course-only-race/course.json"`,
 	}
 
 	for _, snippet := range expectedSnippets {

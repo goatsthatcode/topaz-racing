@@ -20,7 +20,7 @@ func TestRaceVizPublishesTileHostingContractForProductionBuilds(t *testing.T) {
 	}
 
 	racePage := readBuiltHTML(t, filepath.Join(outputDir, "races", "dan-byrne-2025", "bishop-rock-race", "index.html"))
-	assertContains(t, racePage, `data-race-viz-map-tile-manifest-url="https://topaz-racing.com/race-viz/tile-manifest.json"`)
+	assertContains(t, racePage, `data-race-viz-map-tile-manifest-url="race-viz/tile-manifest.json"`)
 	assertContains(t, racePage, `data-race-viz-map-tile-set="combined_socal"`)
 	assertContains(t, racePage, `data-race-viz-map-serving-mode="external-static-vector-host"`)
 

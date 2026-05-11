@@ -15,8 +15,9 @@ The race visualization should consume the published Hugo style resource, not the
 
 Every `race-viz` embed now emits:
 
-- `data-race-viz-map-style-url` for the published MapLibre style JSON
+- `data-race-viz-map-style-url` for the published MapLibre style path token, which the browser resolves against the `current origin` at runtime
 - `data-race-viz-map-tile-endpoint` for the vector tile host prefix
+- `data-race-viz-map-fallback-tile-endpoint` in development so local preview can recover when Martin is not running
 - `data-race-viz-map-prototype-page` and `data-race-viz-map-prototype-style` so the provenance from `tiles/` stays explicit during development
 
 This keeps the map foundation owned by the site layer and gives later map initialization code a stable contract.

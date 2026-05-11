@@ -21,7 +21,7 @@ func TestRaceVizPublishesMapFoundationContractForProductionBuilds(t *testing.T) 
 	}
 
 	racePage := readBuiltHTML(t, filepath.Join(outputDir, "races", "dan-byrne-2025", "bishop-rock-race", "index.html"))
-	assertContains(t, racePage, `data-race-viz-map-style-url="https://topaz-racing.com/race-viz/map-style.json"`)
+	assertContains(t, racePage, `data-race-viz-map-style-url="race-viz/map-style.json"`)
 	assertContains(t, racePage, `data-race-viz-map-tile-endpoint="https://topaz-racing.com/tiles"`)
 	assertContains(t, racePage, `data-race-viz-map-prototype-page="/tiles/index.html"`)
 	assertContains(t, racePage, `data-race-viz-map-prototype-style="/tiles/style.json"`)
@@ -44,8 +44,9 @@ func TestRaceVizPublishesDevelopmentTileEndpointInMapStyle(t *testing.T) {
 	}
 
 	racePage := readBuiltHTML(t, filepath.Join(outputDir, "races", "dan-byrne-2025", "bishop-rock-race", "index.html"))
-	assertContains(t, racePage, `data-race-viz-map-style-url="https://topaz-racing.com/race-viz/map-style.json"`)
+	assertContains(t, racePage, `data-race-viz-map-style-url="race-viz/map-style.json"`)
 	assertContains(t, racePage, `data-race-viz-map-tile-endpoint="http://127.0.0.1:3000"`)
+	assertContains(t, racePage, `data-race-viz-map-fallback-tile-endpoint="https://topaz-racing.com/tiles"`)
 
 	style := readBuiltFile(t, filepath.Join(outputDir, "race-viz", "map-style.json"))
 	assertContains(t, style, `http://127.0.0.1:3000/combined_socal/{z}/{x}/{y}`)
@@ -66,6 +67,7 @@ func TestRaceMapFoundationDocCapturesPrototypeRelationshipAndEnvironmentChoice(t
 		"`data-race-viz-map-style-url`",
 		"`http://127.0.0.1:3000`",
 		"`https://topaz-racing.com/tiles`",
+		"`current origin`",
 	}
 
 	for _, snippet := range expectedSnippets {

@@ -51,13 +51,17 @@
     data-race-viz-replay-speed="1"
     data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
     data-race-viz-active-layers="{{ delimit $activeLayers " " }}"
-    data-race-viz-map-style-url="{{ $mapFoundation.styleResource.Permalink }}"
+    data-race-viz-map-style-url="{{ $mapFoundation.stylePath }}"
     data-race-viz-map-tile-endpoint="{{ $mapFoundation.tileEndpoint }}"
-    data-race-viz-map-tile-manifest-url="{{ $mapFoundation.tileManifestResource.Permalink }}"
+    data-race-viz-map-tile-manifest-url="{{ $mapFoundation.tileManifestPath }}"
     data-race-viz-map-tile-set="{{ $mapFoundation.defaultTileSet.id }}"
     data-race-viz-map-serving-mode="{{ $mapFoundation.servingMode }}"
     data-race-viz-map-prototype-page="{{ $mapFoundation.prototypePage }}"
     data-race-viz-map-prototype-style="{{ $mapFoundation.prototypeStyle }}"
+    {{- with $mapFoundation.fallbackTileEndpoint }}
+    data-race-viz-map-fallback-tile-endpoint="{{ . }}"
+    {{- end }}
+    data-race-viz-map-preview-command="{{ $mapFoundation.previewCommand }}"
     data-race-viz-course-source="{{ $courseSource }}"
     data-race-viz-course-route-layer="{{ $courseRouteLayer }}"
     data-race-viz-course-marks-layer="{{ $courseMarksLayer }}"
@@ -65,12 +69,12 @@
     data-race-viz-course-labels-layer="{{ $courseLabelsLayer }}"
     data-race-viz-tracks-source="{{ $tracksSource }}"
     data-race-viz-tracks-layer="{{ $tracksLayer }}"
-    data-course-url="{{ $course.RelPermalink }}"
+    data-course-url="{{ strings.TrimPrefix "/" $course.RelPermalink }}"
     {{- with $boats }}
-    data-boats-url="{{ .RelPermalink }}"
+    data-boats-url="{{ strings.TrimPrefix "/" .RelPermalink }}"
     {{- end }}
     {{- with $events }}
-    data-events-url="{{ .RelPermalink }}"
+    data-events-url="{{ strings.TrimPrefix "/" .RelPermalink }}"
     {{- end }}>
     <div class="race-viz-stage" role="img" aria-label="{{ printf "%s race visualization" $title }}">
         {{- range $sharedLayers }}
