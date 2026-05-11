@@ -31,8 +31,8 @@ func TestReferenceRaceBundleProvidesCompleteV1Dataset(t *testing.T) {
 	for _, element := range course.Elements {
 		manualShapingPoints += len(element.ControlPointsToNext)
 	}
-	if manualShapingPoints < 1 {
-		t.Fatal("expected sample course to exercise the manual land-routing fallback with at least one shaping point")
+	if manualShapingPoints != 0 {
+		t.Fatalf("expected sample course to have no manual shaping points, got %d", manualShapingPoints)
 	}
 
 	var replayStart time.Time

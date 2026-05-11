@@ -1,0 +1,23 @@
+{
+  "servingMode": "{{ .servingMode }}",
+  "tileEndpoint": "{{ .tileEndpoint }}",
+  "defaultSet": "{{ .defaultTileSet.id }}",
+  "previewCommand": "{{ .previewCommand }}",
+  "prototypePage": "{{ .prototypePage }}",
+  "prototypeStyle": "{{ .prototypeStyle }}",
+  "sets": [
+    {{- range $index, $set := .tileSets }}
+    {{- if gt $index 0 }},{{ end }}
+    {
+      "id": "{{ $set.id }}",
+      "title": "{{ $set.title }}",
+      "path": "{{ $set.path }}",
+      "region": "{{ $set.region }}",
+      "source": "{{ $set.source }}",
+      "bounds": [{{ delimit $set.bounds ", " }}],
+      "center": [{{ delimit $set.center ", " }}],
+      "zoom": {{ $set.zoom }}
+    }
+    {{- end }}
+  ]
+}

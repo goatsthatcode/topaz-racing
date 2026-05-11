@@ -1,0 +1,10 @@
+{{ "<!-- race-viz.css -->" | safeHTML }}
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.css" data-race-viz-asset="maplibre-css">
+{{- $raceViz := resources.Get "css/race-viz.css" | minify }}
+{{- if eq hugo.Environment "development" }}
+    <link rel="stylesheet" href="{{ $raceViz.Permalink }}" data-race-viz-asset="css">
+{{- else }}
+    {{- with $raceViz | fingerprint "sha256" }}
+        <link rel="stylesheet" href="{{ $raceViz.Permalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" data-race-viz-asset="css">
+    {{- end }}
+{{- end }}

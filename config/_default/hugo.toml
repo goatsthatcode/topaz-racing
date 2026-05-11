@@ -98,6 +98,25 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
         ## Use pagefind search when javascript enabled, currently only 'pagefind' is supported, further options to be determined
         pagefind = true
 
+    ## Race visualization map foundation
+    [params.raceViz]
+        [params.raceViz.tiles]
+            development = 'http://127.0.0.1:3000'
+            production = 'https://topaz-racing.com/tiles'
+            servingMode = 'external-static-vector-host'
+            previewCommand = 'martin --config tiles/martin-config'
+            defaultSet = 'combined_socal'
+
+            [[params.raceViz.tiles.sets]]
+                id = 'combined_socal'
+                title = 'Southern California Combined ENC Coverage'
+                path = 'combined_socal'
+                region = 'southern-california'
+                source = 'tiles/mbtiles/combined_socal.mbtiles'
+                bounds = [-121.0, 31.5, -116.0, 35.0]
+                center = [-118.5, 33.5]
+                zoom = 8
+
     ## Typography settings
     [params.typeface]
         ## Use web safe fonts (will overide font selection below)

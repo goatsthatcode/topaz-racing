@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://topaz-racing.com/schemas/race-boats-v1.schema.json",
+  "title": "Topaz Racing V1 Boat Tracks",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["boats"],
+  "properties": {
+    "boats": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/boat"
+      }
+    }
+  },
+  "$defs": {
+    "boat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "color", "boatType", "source", "isSelf", "track"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "color": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boatType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "isSelf": {
+          "type": "boolean"
+        },
+        "track": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/trackPoint"
+          }
+        }
+      }
+    },
+    "trackPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time", "lat", "lon"],
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
+      }
+    }
+  }
+}

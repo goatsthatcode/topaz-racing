@@ -1,0 +1,55 @@
+{{- $tileConfig := site.Params.raceViz.tiles | default dict -}}
+{{- $tileEndpoint := "" -}}
+{{- $prototypePage := "/tiles/index.html" -}}
+{{- $prototypeStyle := "/tiles/style.json" -}}
+{{- if eq hugo.Environment "development" -}}
+    {{- $tileEndpoint = $tileConfig.development | default "http://127.0.0.1:3000" -}}
+{{- else -}}
+    {{- $tileEndpoint = $tileConfig.production | default (printf "%stiles" site.BaseURL) -}}
+{{- end -}}
+{{- $tileEndpoint = strings.TrimSuffix "/" $tileEndpoint -}}
+{{- $servingMode := $tileConfig.servingMode | default "external-static-vector-host" -}}
+{{- $previewCommand := $tileConfig.previewCommand | default "martin --config tiles/martin-config" -}}
+{{- $tileSets := $tileConfig.sets | default (slice (dict
+    "id" "combined_socal"
+    "title" "Southern California Combined ENC Coverage"
+    "path" "combined_socal"
+    "region" "southern-california"
+    "source" "tiles/mbtiles/combined_socal.mbtiles"
+    "bounds" (slice -121.0 31.5 -116.0 35.0)
+    "center" (slice -118.5 33.5)
+    "zoom" 8
+)) -}}
+{{- $defaultTileSetID := $tileConfig.defaultSet | default "combined_socal" -}}
+{{- $defaultTileSet := index $tileSets 0 -}}
+{{- range $tileSets -}}
+    {{- if eq .id $defaultTileSetID -}}
+        {{- $defaultTileSet = . -}}
+    {{- end -}}
+{{- end -}}
+
+{{- $styleTemplate := resources.Get "race-viz/map/style.json.tmpl" -}}
+{{- $styleResource := $styleTemplate | resources.ExecuteAsTemplate "race-viz/map-style.json" (dict
+    "tileEndpoint" $tileEndpoint
+    "tileSet" $defaultTileSet
+) -}}
+{{- $tileManifestTemplate := resources.Get "race-viz/map/tile-manifest.json.tmpl" -}}
+{{- $tileManifestResource := $tileManifestTemplate | resources.ExecuteAsTemplate "race-viz/tile-manifest.json" (dict
+    "defaultTileSet" $defaultTileSet
+    "previewCommand" $previewCommand
+    "prototypePage" $prototypePage
+    "prototypeStyle" $prototypeStyle
+    "servingMode" $servingMode
+    "tileEndpoint" $tileEndpoint
+    "tileSets" $tileSets
+) -}}
+
+{{- return dict
+    "defaultTileSet" $defaultTileSet
+    "prototypePage" $prototypePage
+    "prototypeStyle" $prototypeStyle
+    "servingMode" $servingMode
+    "tileEndpoint" $tileEndpoint
+    "tileManifestResource" $tileManifestResource
+    "styleResource" $styleResource
+-}}

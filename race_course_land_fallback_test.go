@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestReferenceRaceCourseUsesManualRouteShapingPoints(t *testing.T) {
+func TestReferenceRaceCourseUsesStraightRouteSegment(t *testing.T) {
 	var course raceCourseFile
 	readJSONFixture(
 		t,
@@ -16,8 +16,6 @@ func TestReferenceRaceCourseUsesManualRouteShapingPoints(t *testing.T) {
 	expectedCoordinates := []raceCoordinate{
 		{Lat: 33.9769, Lon: -118.4451},
 		{Lat: 32.475, Lon: -119.293},
-		{Lat: 32.9715, Lon: -119.113},
-		{Lat: 33.2364, Lon: -118.9412},
 		{Lat: 33.4445, Lon: -118.6074},
 		{Lat: 33.4445, Lon: -118.6074},
 	}
@@ -34,8 +32,8 @@ func TestReferenceRaceCourseUsesManualRouteShapingPoints(t *testing.T) {
 		}
 	}
 
-	if len(course.Elements[1].ControlPointsToNext) != 2 {
-		t.Fatalf("expected Cortez Bank leg to include 2 shaping points, got %d", len(course.Elements[1].ControlPointsToNext))
+	if len(course.Elements[1].ControlPointsToNext) != 0 {
+		t.Fatalf("expected Cortez Bank leg to include no shaping points, got %d", len(course.Elements[1].ControlPointsToNext))
 	}
 }
 

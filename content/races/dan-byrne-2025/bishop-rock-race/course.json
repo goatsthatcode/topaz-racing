@@ -16,17 +16,7 @@
       "lat": 32.475,
       "lon": -119.293,
       "name": "Cortez Bank",
-      "rounding": "port",
-      "controlPointsToNext": [
-        {
-          "lat": 32.9715,
-          "lon": -119.113
-        },
-        {
-          "lat": 33.2364,
-          "lon": -118.9412
-        }
-      ]
+      "rounding": "port"
     },
     {
       "id": "west-end-catalina",

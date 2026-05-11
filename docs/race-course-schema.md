@@ -54,7 +54,7 @@ The array order is significant. The visualization engine connects each element t
 ## Manual Route Shaping
 `controlPointsToNext` is optional on any element. When present, those coordinates are inserted between the current element and the next ordered element to shape the rendered leg around land or other obstacles.
 
-The reference Bishop Rock bundle now uses `controlPointsToNext` in [`content/races/dan-byrne-2025/bishop-rock-race/course.json`](/Users/lorenbrindze/Projects/topaz-racing/content/races/dan-byrne-2025/bishop-rock-race/course.json:1) so the fallback stays exercised by real sample data instead of documentation alone.
+The reference Bishop Rock bundle currently leaves `controlPointsToNext` empty so the rendered leg stays straight between the authored marks.
 
 This keeps course marks as the author-facing model while leaving room for future automatic route-around-land logic. A later schema revision can add richer routing metadata without changing the main ordered course element list.
 

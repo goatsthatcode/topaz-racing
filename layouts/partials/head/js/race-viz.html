@@ -1,0 +1,10 @@
+{{ "<!-- race-viz.js -->" | safeHTML }}
+<script src="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.js" data-race-viz-asset="maplibre-js"></script>
+{{- $raceViz := resources.Get "js/race-viz.js" | minify }}
+{{- if eq hugo.Environment "development" }}
+    <script src="{{ $raceViz.Permalink }}" type="module" data-race-viz-asset="js"></script>
+{{- else }}
+    {{- with $raceViz | fingerprint "sha384" }}
+        <script src="{{ $raceViz.Permalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" type="module" data-race-viz-asset="js"></script>
+    {{- end }}
+{{- end }}

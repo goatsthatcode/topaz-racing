@@ -1,0 +1,83 @@
+{{- $raceParam := .Get "race" -}}
+{{- $targetPage := .Page -}}
+{{- if $raceParam -}}
+    {{- $targetPage = site.GetPage (printf "/races/%s" $raceParam) -}}
+{{- end -}}
+
+{{- if not $targetPage -}}
+    {{- errorf "race-viz shortcode could not find race page %q from %s" $raceParam .Position -}}
+{{- end -}}
+
+{{- $course := $targetPage.Resources.GetMatch "course.json" -}}
+{{- $boats := $targetPage.Resources.GetMatch "boats.json" -}}
+{{- $events := $targetPage.Resources.GetMatch "events.json" -}}
+{{- $mode := or (.Get "mode") "replay" -}}
+{{- if not $course -}}
+    {{- errorf "race-viz shortcode requires course.json in %s" $targetPage.File.Path -}}
+{{- end -}}
+{{- if and (eq $mode "replay") (not $boats) -}}
+    {{- errorf "race-viz shortcode requires boats.json in %s" $targetPage.File.Path -}}
+{{- end -}}
+
+{{- $raceID := strings.TrimSuffix "/" (strings.TrimPrefix "/races/" $targetPage.RelPermalink) -}}
+{{- $title := or (.Get "title") $targetPage.Title -}}
+{{- $className := or (.Get "class") "" -}}
+{{- $mapFoundation := partial "race-viz/map-foundation.html" . -}}
+{{- $sharedLayers := slice "map" "course" "tracks" "boats" "events" "controls" -}}
+{{- $activeLayers := slice "map" "course" "events" -}}
+{{- $courseSource := "race-viz-course" -}}
+{{- $courseRouteLayer := "race-viz-course-route" -}}
+{{- $courseMarksLayer := "race-viz-course-marks" -}}
+{{- $courseStartFinishLayer := "race-viz-course-start-finish" -}}
+{{- $courseLabelsLayer := "race-viz-course-labels" -}}
+{{- $coursePalette := "signal-v1" -}}
+{{- if eq $mode "replay" -}}
+    {{- $activeLayers = $sharedLayers -}}
+{{- end -}}
+
+<figure
+    class="race-viz-shell{{ with $className }} {{ . }}{{ end }}"
+    data-race-viz
+    data-race-viz-course-palette="{{ $coursePalette }}"
+    data-race-viz-engine="shared-v1"
+    data-race-id="{{ $raceID }}"
+    data-race-mode="{{ $mode }}"
+    data-race-viz-course-state="idle"
+    data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
+    data-race-viz-active-layers="{{ delimit $activeLayers " " }}"
+    data-race-viz-map-style-url="{{ $mapFoundation.styleResource.Permalink }}"
+    data-race-viz-map-tile-endpoint="{{ $mapFoundation.tileEndpoint }}"
+    data-race-viz-map-tile-manifest-url="{{ $mapFoundation.tileManifestResource.Permalink }}"
+    data-race-viz-map-tile-set="{{ $mapFoundation.defaultTileSet.id }}"
+    data-race-viz-map-serving-mode="{{ $mapFoundation.servingMode }}"
+    data-race-viz-map-prototype-page="{{ $mapFoundation.prototypePage }}"
+    data-race-viz-map-prototype-style="{{ $mapFoundation.prototypeStyle }}"
+    data-race-viz-course-source="{{ $courseSource }}"
+    data-race-viz-course-route-layer="{{ $courseRouteLayer }}"
+    data-race-viz-course-marks-layer="{{ $courseMarksLayer }}"
+    data-race-viz-course-start-finish-layer="{{ $courseStartFinishLayer }}"
+    data-race-viz-course-labels-layer="{{ $courseLabelsLayer }}"
+    data-course-url="{{ $course.RelPermalink }}"
+    {{- with $boats }}
+    data-boats-url="{{ .RelPermalink }}"
+    {{- end }}
+    {{- with $events }}
+    data-events-url="{{ .RelPermalink }}"
+    {{- end }}>
+    <div class="race-viz-stage" role="img" aria-label="{{ printf "%s race visualization" $title }}">
+        {{- range $sharedLayers }}
+            <div class="race-viz-layer race-viz-layer-{{ . }}" data-race-viz-layer="{{ . }}">
+                {{- if eq . "map" -}}
+                    <div class="race-viz-map-canvas" data-race-viz-map-canvas aria-hidden="true"></div>
+                {{- end -}}
+            </div>
+        {{- end }}
+    </div>
+    <figcaption>
+        {{- if $raceParam -}}
+            Race visualization embed for <code>{{ $raceID }}</code>.
+        {{- else -}}
+            Race visualization embed for this race page.
+        {{- end -}}
+    </figcaption>
+</figure>

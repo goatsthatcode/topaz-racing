@@ -9,6 +9,16 @@ The intended execution style is:
 - favor small end-to-end slices over broad unfinished scaffolding
 - preserve future support for live tracking, import tooling, and richer storytelling overlays
 
+Repository hygiene for task completion:
+- treat [SPEC.md](/Users/lorenbrindze/Projects/topaz-racing/SPEC.md:1) plus the source tree as the source of truth
+- when a task is marked done, ensure its authored files in `content/`, `layouts/`, `assets/`, `schemas/`, `docs/`, and tests are staged or committed
+- do not treat generated `public/` output as a required deliverable unless a task explicitly says to publish build artifacts
+
+Test organization guidance:
+- keep pure data-contract tests together
+- keep Hugo-render integration tests together
+- prefer shared helpers over repeating `hugo` build setup in each root-level `_test.go` file
+
 ## Milestone 0: Repository And Architecture Baseline
 
 ### Task 0.1
