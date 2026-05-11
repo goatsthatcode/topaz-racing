@@ -304,6 +304,8 @@ Acceptance criteria:
 ### Task 5.1
 Implement boat legend and visibility toggles.
 
+- [x] Done on 2026-05-11: added per-boat `hiddenBoatIds` Set to `createRaceVizState`, updated `renderBoatLegend` to include a toggle button per item, added `syncBoatLegendVisibility`, `attachBoatLegendToggles`, and `applyBoatVisibilityToLayers` in `assets/js/race-viz.js`, passed `hiddenBoatIds` through `renderReplayFrame` to `buildReplayTailFeatures` and `buildBoatMarkerFeatures`, added toggle button and hidden-state CSS to `assets/css/race-viz.css`, and covered the contract in `race_boat_legend_test.go`.
+
 Deliverables:
 - visible boat list
 - color keys

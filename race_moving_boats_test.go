@@ -72,10 +72,10 @@ func TestRaceVizBootstrapUpdatesMapOnEachReplayTick(t *testing.T) {
 		// renderReplayFrame is called from setReplayTime
 		`renderReplayFrame(state.map.instance, state)`,
 
-		// Frame updates both tails and markers
-		`buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs)`,
+		// Frame updates both tails and markers (passes hiddenBoatIds for visibility filtering)
+		`buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs, hiddenBoatIds)`,
 		`upsertReplayTailsSource(map, state, tailFeatures)`,
-		`buildBoatMarkerFeatures(state.replay.snapshot)`,
+		`buildBoatMarkerFeatures(state.replay.snapshot, hiddenBoatIds)`,
 		`upsertBoatMarkersSource(map, state, markerFeatures)`,
 
 		// Empty feature collections are used for initial source state

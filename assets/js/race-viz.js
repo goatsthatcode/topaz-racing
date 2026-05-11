@@ -146,6 +146,9 @@ function createRaceVizState(config) {
       animationFrameID: 0,
       lastFrameMs: 0,
     },
+    visibility: {
+      hiddenBoatIds: new Set(),
+    },
   };
 }
 
@@ -365,11 +368,15 @@ function renderBoatLegend(root, boats) {
   legend.replaceChildren();
 
   for (const boat of boats) {
+    const boatId = boat.id ?? "";
+    const boatName = boat.name || boatId || "Boat";
+
     const item = document.createElement("li");
     item.className = "race-viz-boat-legend-item";
-    item.dataset.raceVizBoatLegendItem = boat.id ?? "";
+    item.dataset.raceVizBoatLegendItem = boatId;
     item.dataset.raceVizBoatColor = boat.color ?? "";
     item.dataset.raceVizBoatRole = boat.isSelf ? "self" : "competitor";
+    item.dataset.raceVizBoatHidden = "false";
 
     const swatch = document.createElement("span");
     swatch.className = "race-viz-boat-legend-swatch";
@@ -379,10 +386,94 @@ function renderBoatLegend(root, boats) {
 
     const label = document.createElement("span");
     label.className = "race-viz-boat-legend-label";
-    label.textContent = boat.name ?? boat.id ?? "Boat";
+    label.textContent = boatName;
 
-    item.append(swatch, label);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "race-viz-boat-toggle";
+    toggle.dataset.raceVizBoatToggle = boatId;
+    toggle.setAttribute("aria-label", `Toggle ${boatName} visibility`);
+    toggle.setAttribute("aria-pressed", "true");
+
+    item.append(swatch, label, toggle);
     legend.append(item);
+  }
+}
+
+function syncBoatLegendVisibility(root, state) {
+  const legend = getBoatLegend(root);
+  if (!legend) {
+    return;
+  }
+
+  for (const item of legend.querySelectorAll("[data-race-viz-boat-legend-item]")) {
+    const boatId = item.dataset.raceVizBoatLegendItem;
+    const hidden = state.visibility.hiddenBoatIds.has(boatId);
+    item.dataset.raceVizBoatHidden = String(hidden);
+    const toggle = item.querySelector("[data-race-viz-boat-toggle]");
+    if (toggle) {
+      toggle.setAttribute("aria-pressed", String(!hidden));
+    }
+  }
+}
+
+function attachBoatLegendToggles(root, state) {
+  const legend = getBoatLegend(root);
+  if (!legend) {
+    return;
+  }
+
+  legend.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-race-viz-boat-toggle]");
+    if (!toggle) {
+      return;
+    }
+
+    const boatId = toggle.dataset.raceVizBoatToggle;
+    if (!boatId) {
+      return;
+    }
+
+    if (state.visibility.hiddenBoatIds.has(boatId)) {
+      state.visibility.hiddenBoatIds.delete(boatId);
+    } else {
+      state.visibility.hiddenBoatIds.add(boatId);
+    }
+
+    syncBoatLegendVisibility(root, state);
+
+    if (state.map.instance && state.map.status === "ready") {
+      applyBoatVisibilityToLayers(state.map.instance, state);
+    }
+  });
+}
+
+function applyBoatVisibilityToLayers(map, state) {
+  const hiddenIds = state.visibility.hiddenBoatIds;
+
+  if (!state.replay.started) {
+    const tracksLayerID = state.config.tracks.layerID;
+    const selfOnlyFilter = ["boolean", ["get", "isSelf"], false];
+
+    let filter;
+    if (hiddenIds.size === 0) {
+      filter = selfOnlyFilter;
+    } else {
+      filter = [
+        "all",
+        selfOnlyFilter,
+        ["!", ["in", ["get", "id"], ["literal", Array.from(hiddenIds)]]],
+      ];
+    }
+
+    if (map.getLayer(tracksLayerID)) {
+      map.setFilter(tracksLayerID, filter);
+    }
+    if (map.getLayer(`${tracksLayerID}-casing`)) {
+      map.setFilter(`${tracksLayerID}-casing`, filter);
+    }
+  } else {
+    renderReplayFrame(map, state);
   }
 }
 
@@ -1207,10 +1298,14 @@ function buildTrackTailCoordinates(boat, timeMs) {
   return coords;
 }
 
-function buildReplayTailFeatures(timeline, timeMs) {
+function buildReplayTailFeatures(timeline, timeMs, hiddenBoatIds = null) {
   const features = [];
 
   for (const boat of timeline.boats) {
+    if (hiddenBoatIds !== null && hiddenBoatIds.has(boat.id ?? "")) {
+      continue;
+    }
+
     const coords = buildTrackTailCoordinates(boat, timeMs);
     if (coords.length < 2) {
       continue;
@@ -1232,23 +1327,25 @@ function buildReplayTailFeatures(timeline, timeMs) {
   return { type: "FeatureCollection", features };
 }
 
-function buildBoatMarkerFeatures(snapshot) {
+function buildBoatMarkerFeatures(snapshot, hiddenBoatIds = null) {
   return {
     type: "FeatureCollection",
-    features: snapshot.boats.map((boat) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [boat.position.lon, boat.position.lat],
-      },
-      properties: {
-        featureType: "boat-marker",
-        id: boat.id ?? "",
-        name: boat.name ?? "",
-        color: boat.color ?? "#ffffff",
-        isSelf: Boolean(boat.isSelf),
-      },
-    })),
+    features: snapshot.boats
+      .filter((boat) => hiddenBoatIds === null || !hiddenBoatIds.has(boat.id ?? ""))
+      .map((boat) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [boat.position.lon, boat.position.lat],
+        },
+        properties: {
+          featureType: "boat-marker",
+          id: boat.id ?? "",
+          name: boat.name ?? "",
+          color: boat.color ?? "#ffffff",
+          isSelf: Boolean(boat.isSelf),
+        },
+      })),
   };
 }
 
@@ -1373,10 +1470,11 @@ function renderReplayFrame(map, state) {
     return;
   }
 
-  const tailFeatures = buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs);
+  const hiddenBoatIds = state.visibility.hiddenBoatIds;
+  const tailFeatures = buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs, hiddenBoatIds);
   upsertReplayTailsSource(map, state, tailFeatures);
 
-  const markerFeatures = buildBoatMarkerFeatures(state.replay.snapshot);
+  const markerFeatures = buildBoatMarkerFeatures(state.replay.snapshot, hiddenBoatIds);
   upsertBoatMarkersSource(map, state, markerFeatures);
 }
 
@@ -1433,6 +1531,7 @@ async function loadBoats(root, stage, state, mapReadyPromise) {
     syncReplayClockDataset(root, state.replay);
 
     renderBoatLegend(root, payload.boats ?? []);
+    attachBoatLegendToggles(root, state);
     syncReplayControls(root, state);
 
     const map = await mapReadyPromise;
