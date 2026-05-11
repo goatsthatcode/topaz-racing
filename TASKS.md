@@ -44,6 +44,18 @@ Acceptance criteria:
 - visualization assets are not tied to theme internals unnecessarily
 - the site remains maintainable without editing vendor theme code for core app logic
 
+### Task 0.4
+Commit to a shared visualization engine and data model for V1 modes.
+
+Deliverables:
+- one architecture note or implementation decision covering shared map, overlay, and state primitives
+- explicit layering plan for `course` and `replay` modes on top of the same engine
+- boundaries between shared visualization logic and mode-specific behavior
+
+Acceptance criteria:
+- `course` and `replay` do not diverge into separate unrelated component systems
+- shared data contracts and rendering primitives are identified before substantial mode-specific UI work begins
+
 ## Milestone 1: Data Contracts
 
 ### Task 1.1
@@ -51,11 +63,16 @@ Define the V1 JSON schema for race course data.
 
 Deliverables:
 - course file format
+- ordered course element list
 - element types for `mark`, `start_line`, and `finish_line`
+- required fields for each course element: `id`, `type`, `lat`, `lon`
+- optional `name` field
+- `rounding` semantics with values such as `port`, `starboard`, and `none`
 - support for optional manual route-shaping control points
 
 Acceptance criteria:
 - a single race course can be described completely in JSON
+- the schema is sufficient for a standalone `course` mode render without any track data present
 - the schema leaves room for future exclusion zones and auto-routing
 
 ### Task 1.2
@@ -63,6 +80,7 @@ Define the V1 JSON schema for boat track data.
 
 Deliverables:
 - per-boat metadata contract
+- required boat metadata fields: `id`, `name`, `color`, `boatType`, `source`, `isSelf`
 - per-point time/lat/lon contract
 - expected file organization for one or more boats in a race
 
@@ -123,6 +141,7 @@ Deliverables:
 - explicit V1 approach for tile serving or tile publishing
 - local preview workflow
 - production deployment assumption
+- note on how the chosen approach can expand to chart coverage beyond Southern California without redesigning the app
 
 Acceptance criteria:
 - the chosen approach is simple enough to repeat
@@ -161,6 +180,18 @@ Deliverables:
 
 Acceptance criteria:
 - a course can be drawn around islands without visually crossing land when manual shaping points are provided
+
+### Task 3.4
+Implement standalone `course` mode as a first-class view.
+
+Deliverables:
+- embeddable/view-only course visualization using the shared engine
+- rendering path that requires course data but no boat track data
+- mode selection or configuration path shared with replay embeds
+
+Acceptance criteria:
+- a page can embed the visualization in `course` mode without providing track JSON
+- the same shared component system is used for both `course` and `replay`
 
 ## Milestone 4: Replay Engine
 
@@ -328,9 +359,11 @@ Document the local preview and deployment workflow for map assets.
 Deliverables:
 - local instructions for previewing the chart map
 - production assumptions for static hosting and tile access
+- future-facing note describing boundaries for later chart-tile generation and normalized race-data import pipelines
 
 Acceptance criteria:
 - the map stack is understandable and repeatable
+- future asset-generation or normalization tooling can target documented interfaces instead of requiring visualization rewrites
 
 ## Deferred Backlog
 These are explicitly out of scope for initial implementation, but should remain visible for future work:
@@ -360,10 +393,11 @@ Implement in this order unless blocked:
 V1 is complete when:
 - a canonical race page can be created in Hugo
 - that page can render the ENC-style chart map
-- a race course can be loaded from JSON
+- a race course can be loaded from JSON in standalone `course` mode
 - multiple boats can be loaded from JSON
 - the race can be replayed with controls
 - boats can be shown/hidden from a legend
 - event annotations can be displayed
+- `course` and `replay` share one visualization engine and data model
 - the page remains mostly static-hostable
 - the workflow for adding another race is documented
