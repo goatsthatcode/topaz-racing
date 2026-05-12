@@ -410,6 +410,8 @@ Acceptance criteria:
 ### Task 8.1
 Document the race authoring workflow.
 
+- [x] Done on 2026-05-11: documented the end-to-end race authoring flow in `docs/race-authoring-workflow.md`, covering directory setup, course/boats/events JSON authoring, the shortcode embed syntax, and the reference race pointer; covered the authoring contract in `race_authoring_workflow_test.go`.
+
 Deliverables:
 - how to create a new race
 - where to put course JSON
@@ -421,6 +423,8 @@ Acceptance criteria:
 
 ### Task 8.2
 Document the local preview and deployment workflow for map assets.
+
+- [x] Done on 2026-05-11: documented the local Martin + Hugo preview workflow, production tile URL contract, Hugo-published map artifacts, and future boundaries for tile-generation and race-data import pipelines in `docs/race-preview-deployment.md`; covered the map stack contract in `race_preview_deployment_test.go`.
 
 Deliverables:
 - local instructions for previewing the chart map
@@ -451,7 +455,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 5: Interaction Layer
 - [x] Milestone 6: Hugo Page Integration
 - [x] Milestone 7: Styling And UX Refinement
-- [ ] Milestone 8: Documentation And Authoring Workflow
+- [x] Milestone 8: Documentation And Authoring Workflow
 
 ## Definition Of Done For V1
 V1 is complete when:
