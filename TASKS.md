@@ -382,6 +382,8 @@ Acceptance criteria:
 ### Task 7.1
 Extend site-level styling to support the intended visual direction.
 
+- [x] Done on 2026-05-11: created `assets/css/custom.css` (overrides theme's placeholder) with `--ac-dark: #7ef5ec` (aligns dark-mode accent with race-viz cyan), `--site-navy: #08111f` (deep navy body background), and shared identity tokens (`--site-cyan`, `--site-cyan-dim`, `--site-border-subtle`); added dark-mode retro-digital gradient treatment on the site header, race-page header, and article headings; covered the contract in `race_site_styling_test.go`.
+
 Deliverables:
 - dark theme refinements
 - retro-digital gradient accents
@@ -392,6 +394,8 @@ Acceptance criteria:
 
 ### Task 7.2
 Tune mobile usability.
+
+- [x] Done on 2026-05-11: added a dedicated mobile refinements section to `assets/css/race-viz.css` under `max-width: 42rem` raising button and boat-toggle touch targets to 2.75rem (44px WCAG minimum), capping the fleet legend with `max-height` + `overflow-y: auto`, constraining event and hover popup widths to 14rem, and reducing race-page header padding on narrow screens; covered the contract in `race_site_styling_test.go`.
 
 Deliverables:
 - map sizing behavior
@@ -446,7 +450,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 4: Replay Engine
 - [x] Milestone 5: Interaction Layer
 - [x] Milestone 6: Hugo Page Integration
-- [ ] Milestone 7: Styling And UX Refinement
+- [x] Milestone 7: Styling And UX Refinement
 - [ ] Milestone 8: Documentation And Authoring Workflow
 
 ## Definition Of Done For V1

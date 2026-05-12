@@ -1,0 +1,69 @@
+/* ─── Site identity: Topaz Racing ─────────────────────────────────────────── */
+/*
+ * This file overrides the theme's custom.css (hugo-brewm) via Hugo's asset
+ * mount precedence. Site-level design tokens and dark-mode refinements live
+ * here so that prose pages feel visually consistent with the race viz overlays.
+ */
+
+:root {
+    /* Accent colors: nautical blue in light mode, cyan-teal in dark mode.
+     * The dark accent intentionally matches the race visualization palette so
+     * that embedded race components feel native rather than bolted on. */
+    --ac-light: #1a7fcf;
+    --ac-dark: #7ef5ec;
+
+    /* Site identity design tokens shared with race-viz overlays */
+    --site-navy: #08111f;
+    --site-cyan: #7ef5ec;
+    --site-cyan-dim: rgba(126, 245, 236, 0.18);
+    --site-border-subtle: rgba(126, 245, 236, 0.12);
+    --site-border-accent: rgba(126, 245, 236, 0.28);
+}
+
+/* ─── Dark theme refinements ──────────────────────────────────────────────── */
+/*
+ * Push the body background toward the deep navy of the race map. The theme
+ * sets --bg to #111 by default; overriding here keeps prose pages in the same
+ * visual register as the race visualization component.
+ */
+@media (prefers-color-scheme: dark) {
+    body {
+        --bg: #08111f;
+        --fg: #d4eef8;
+        --mid: #3a5470;
+    }
+
+    /* Retro-digital gradient accent: a faint cyan gradient below the site header
+     * ties it to the race-viz shell's glow treatment. */
+    body > header {
+        border-bottom: 1px solid var(--site-border-subtle);
+        box-shadow: 0 0.5rem 2rem var(--site-cyan-dim);
+    }
+
+    /* Race page header: receive the same gradient that the race-viz shell uses
+     * so the prose and visualization share a continuous visual ground. */
+    .race-page-header {
+        background: linear-gradient(
+            180deg,
+            transparent,
+            rgba(126, 245, 236, 0.04)
+        );
+    }
+
+    /* Retro-digital gradient accent line on article headings. The gradient runs
+     * from transparent to a hairline at the site-cyan color, matching the
+     * line-above-controls styling inside the race-viz panels. */
+    article h1,
+    article h2 {
+        border-top: 1px solid var(--site-border-subtle);
+        padding-top: 0.6em;
+    }
+
+    /* De-emphasize the first h1 border since the page title already has a
+     * header context above it. */
+    article > h1:first-child,
+    .race-page-header h1 {
+        border-top: none;
+        padding-top: 0;
+    }
+}

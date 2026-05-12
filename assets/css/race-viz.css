@@ -468,3 +468,56 @@
         min-height: clamp(18rem, 65svh, 36rem);
     }
 }
+
+/* ─── Mobile usability refinements ────────────────────────────────────────── */
+/*
+ * Replay controls and the boat legend must remain usable on a phone. The
+ * primary concerns are touch target size and the legend's overflow behavior
+ * when many boats are in the fleet.
+ */
+
+@media (max-width: 42rem) {
+    /* Raise button touch targets to the 44px (2.75rem) WCAG recommended
+     * minimum so replay controls are reliably tappable on phone screens. */
+    .race-viz-button {
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .race-viz-speed-select {
+        min-height: 2.75rem;
+    }
+
+    /* Boat toggle buttons inside the legend also need a large touch area. */
+    .race-viz-boat-toggle {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+    }
+
+    /* Cap the legend height and allow scrolling when many boats fill it. */
+    .race-viz-boat-legend {
+        max-height: 9rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    /* Give the legend a subtle inner shadow so the scrollable edge is obvious
+     * without requiring an explicit border. */
+    .race-viz-panel:has(.race-viz-boat-legend) {
+        padding-bottom: 0.5rem;
+    }
+
+    /* Event and hover popups: ensure text is readable on narrow screens. */
+    .race-viz-event-popup .maplibregl-popup-content,
+    .race-viz-hover-tooltip .maplibregl-popup-content {
+        max-width: 14rem;
+        font-size: 0.82rem;
+    }
+
+    /* Race page header: reduce vertical padding on narrow screens so the map
+     * reaches the viewport fold sooner. */
+    .race-page-header {
+        padding-block: 0.75rem 0.6rem;
+    }
+}
