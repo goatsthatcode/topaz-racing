@@ -355,6 +355,8 @@ Acceptance criteria:
 ### Task 6.2
 Create the first canonical race page layout.
 
+- [x] Done on 2026-05-11: added `layouts/races/single.html` which always loads race-viz assets and wraps race pages in a `data-race-page` article with a compact `race-page-header` above and a full-width `race-page-map` section below; added race-page map-first CSS to `assets/css/race-viz.css` making the stage viewport-height on desktop and narrower on mobile; restructured `content/races/dan-byrne-2025/bishop-rock-race/index.md` to place the shortcode first so the map leads the content; and covered the composition contract in `race_canonical_page_layout_test.go`.
+
 Deliverables:
 - map-first page composition
 - prose section placement below or secondary to the visualization
@@ -443,7 +445,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 3: Course Rendering
 - [x] Milestone 4: Replay Engine
 - [x] Milestone 5: Interaction Layer
-- [ ] Milestone 6: Hugo Page Integration
+- [x] Milestone 6: Hugo Page Integration
 - [ ] Milestone 7: Styling And UX Refinement
 - [ ] Milestone 8: Documentation And Authoring Workflow
 

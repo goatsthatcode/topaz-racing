@@ -1,0 +1,22 @@
+{{- define "head" }}
+    {{- /* Race pages always load race visualization assets, no content-scan needed */}}
+    {{ partial "head/css/race-viz.html" . }}
+    {{ partial "head/js/race-viz.html" . }}
+{{- end }}
+
+{{- define "main" }}
+<article class="race-page" data-race-page role="document" data-pagefind-ignore="all">
+    <header class="race-page-header pagewidth" aria-labelledby="title">
+        {{ partial "page/title.html" . }}
+        {{ partial "page/timestamp.html" . }}
+    </header>
+    <section class="race-page-map" aria-label="{{ .Title }} race visualization">
+        {{ .Content }}
+    </section>
+    <div class="race-page-info pagewidth" role="contentinfo">
+        {{ partial "post/related.html" . }}
+        {{ partial "post/history.html" . }}
+        {{ partial "post/colophon.html" . }}
+    </div>
+</article>
+{{- end }}
