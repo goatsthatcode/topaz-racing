@@ -155,6 +155,9 @@ function createRaceVizState(config) {
     visibility: {
       hiddenBoatIds: new Set(),
     },
+    hover: {
+      activeTooltip: null,
+    },
     events: {
       status: "idle",
       activePopup: null,
@@ -1653,6 +1656,101 @@ function attachEventInteractions(map, state) {
   });
 }
 
+function attachBoatMarkerHoverInteractions(map, state) {
+  const layerID = state.config.boatMarkers.layerID;
+
+  map.on("mouseenter", layerID, (event) => {
+    map.getCanvas().style.cursor = "pointer";
+
+    const feature = event.features?.[0];
+    if (!feature) {
+      return;
+    }
+
+    const props = feature.properties;
+    const coordinates = feature.geometry.coordinates.slice();
+
+    if (state.hover.activeTooltip) {
+      state.hover.activeTooltip.remove();
+      state.hover.activeTooltip = null;
+    }
+
+    const parts = [];
+    if (props.name) {
+      parts.push(`<strong class="race-viz-hover-name">${props.name}</strong>`);
+    }
+    const timeLabel = formatReplayClockLabel(state.replay.currentTimeMs);
+    parts.push(`<time class="race-viz-hover-time">${timeLabel}</time>`);
+
+    state.hover.activeTooltip = new window.maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      className: "race-viz-hover-tooltip",
+      offset: 14,
+    })
+      .setLngLat(coordinates)
+      .setHTML(`<div class="race-viz-hover-tooltip-content">${parts.join("")}</div>`)
+      .addTo(map);
+  });
+
+  map.on("mouseleave", layerID, () => {
+    map.getCanvas().style.cursor = "";
+
+    if (state.hover.activeTooltip) {
+      state.hover.activeTooltip.remove();
+      state.hover.activeTooltip = null;
+    }
+  });
+}
+
+function attachTrackHoverInteractions(map, state) {
+  const tracksLayerID = state.config.tracks.layerID;
+  const tailsLayerID = state.config.replayTails.layerID;
+
+  for (const layerID of [tracksLayerID, tailsLayerID]) {
+    map.on("mouseenter", layerID, (event) => {
+      map.getCanvas().style.cursor = "crosshair";
+
+      const feature = event.features?.[0];
+      if (!feature) {
+        return;
+      }
+
+      const props = feature.properties;
+      const lngLat = event.lngLat;
+
+      if (state.hover.activeTooltip) {
+        state.hover.activeTooltip.remove();
+        state.hover.activeTooltip = null;
+      }
+
+      const parts = [];
+      if (props.name) {
+        parts.push(`<strong class="race-viz-hover-name">${props.name}</strong>`);
+      }
+
+      state.hover.activeTooltip = new window.maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: "race-viz-hover-tooltip",
+        offset: 10,
+      })
+        .setLngLat(lngLat)
+        .setHTML(`<div class="race-viz-hover-tooltip-content">${parts.join("")}</div>`)
+        .addTo(map);
+    });
+
+    map.on("mouseleave", layerID, () => {
+      map.getCanvas().style.cursor = "";
+
+      if (state.hover.activeTooltip) {
+        state.hover.activeTooltip.remove();
+        state.hover.activeTooltip = null;
+      }
+    });
+  }
+}
+
 async function loadEvents(root, stage, state, mapReadyPromise, boatsReadyPromise) {
   if (!state.config.activeLayers.includes("events") || !state.config.eventsURL) {
     return;
@@ -1742,6 +1840,8 @@ async function loadBoats(root, stage, state, mapReadyPromise) {
     renderReplayTailLayers(map, state);
     upsertBoatMarkersSource(map, state, emptyFeatureCollection());
     renderBoatMarkerLayers(map, state);
+    attachBoatMarkerHoverInteractions(map, state);
+    attachTrackHoverInteractions(map, state);
     enterPrePlayMode(map, state);
     setBoatsState(root, stage, state, "ready");
     setReplayClockState(root, state, "ready");

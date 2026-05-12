@@ -317,6 +317,8 @@ Acceptance criteria:
 ### Task 5.2
 Implement hover interactions.
 
+- [x] Done on 2026-05-11: added `hover: { activeTooltip }` to `createRaceVizState`, added `attachBoatMarkerHoverInteractions` (cursor pointer + popup with boat name and formatted replay time on mouseenter, cleanup on mouseleave) and `attachTrackHoverInteractions` (cursor crosshair + boat name popup for static tracks and replay tails) in `assets/js/race-viz.js`; added `.race-viz-hover-tooltip` and related CSS in `assets/css/race-viz.css`; wired both after `renderBoatMarkerLayers` in `loadBoats`; and covered the contract in `race_hover_interactions_test.go`.
+
 Deliverables:
 - timestamp tooltip behavior
 - useful hover state on track or replay marker
@@ -440,7 +442,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 2: Map Foundation
 - [x] Milestone 3: Course Rendering
 - [x] Milestone 4: Replay Engine
-- [ ] Milestone 5: Interaction Layer
+- [x] Milestone 5: Interaction Layer
 - [ ] Milestone 6: Hugo Page Integration
 - [ ] Milestone 7: Styling And UX Refinement
 - [ ] Milestone 8: Documentation And Authoring Workflow
