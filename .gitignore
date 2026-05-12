@@ -7,3 +7,4 @@ resources/_gen/
 *.old
 *.swp
 coverage.out
+gpx-import

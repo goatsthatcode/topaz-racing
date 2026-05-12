@@ -435,11 +435,28 @@ Acceptance criteria:
 - the map stack is understandable and repeatable
 - future asset-generation or normalization tooling can target documented interfaces instead of requiring visualization rewrites
 
+## Milestone 9: Import Tooling
+
+### Task 9.1
+Implement GPX-to-boats.json import tool.
+
+- [x] Done on 2026-05-11: implemented `gpximport` package (`gpximport/converter.go`) with `ConvertGPX` and `MergeBoat`, added CLI at `cmd/gpx-import/main.go`, and covered all conversion and merge cases in `gpximport/converter_test.go` (14 tests).
+
+Deliverables:
+- `gpximport` Go package with `ConvertGPX` and `MergeBoat` functions
+- `cmd/gpx-import` CLI accepting `--id`, `--name`, `--color`, `--boat-type`, `--self`, `--merge`, and `--output` flags
+- Supports GPX 1.0 and 1.1, multi-segment, and multi-track files
+- Merge flag allows adding a new boat to an existing `boats.json`
+
+Acceptance criteria:
+- a GPX file from a Garmin or phone can be converted to `boats.json` format without hand-authoring track points
+- multiple boats can be accumulated into one `boats.json` by running the tool once per boat with `--merge`
+
 ## Deferred Backlog
 These are explicitly out of scope for initial implementation, but should remain visible for future work:
 
 - live race mode with periodic refresh
-- import/conversion tooling for Jibeset, Garmin, GPX, and similar formats
+- import/conversion tooling for Jibeset and Garmin Connect export formats
 - auto-routing around land/islands
 - weather overlays
 - exclusion zone rendering and logic
@@ -456,6 +473,7 @@ These are explicitly out of scope for initial implementation, but should remain 
 - [x] Milestone 6: Hugo Page Integration
 - [x] Milestone 7: Styling And UX Refinement
 - [x] Milestone 8: Documentation And Authoring Workflow
+- [x] Milestone 9: Import Tooling
 
 ## Definition Of Done For V1
 V1 is complete when:
