@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -11,7 +11,7 @@ func TestRaceVizBuildsEmbeddableMapCanvasForRacePages(t *testing.T) {
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = append(os.Environ(), "HUGO_ENVIRONMENT=development")
 
 	output, err := cmd.CombinedOutput()

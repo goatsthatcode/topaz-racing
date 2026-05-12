@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -12,7 +12,7 @@ func TestRaceVizPublishesCourseRenderingContract(t *testing.T) {
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = append(os.Environ(), "HUGO_ENVIRONMENT=development")
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -37,7 +37,7 @@ func TestRaceVizPublishesCourseRenderingContract(t *testing.T) {
 }
 
 func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("assets", "js", "race-viz.js"))
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
 	if err != nil {
 		t.Fatalf("failed to read race viz bootstrap: %v", err)
 	}
@@ -72,7 +72,7 @@ func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
 }
 
 func TestRaceVizStylesDefineEditorialCourseFrame(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("assets", "css", "race-viz.css"))
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
 	if err != nil {
 		t.Fatalf("failed to read race viz stylesheet: %v", err)
 	}

@@ -1,53 +1,13 @@
-package topazracing
+package tests
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-type courseFile struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Elements []struct {
-		ID       string  `json:"id"`
-		Type     string  `json:"type"`
-		Lat      float64 `json:"lat"`
-		Lon      float64 `json:"lon"`
-		Rounding string  `json:"rounding"`
-	} `json:"elements"`
-}
-
-type boatsFile struct {
-	Boats []struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Color    string `json:"color"`
-		BoatType string `json:"boatType"`
-		Source   string `json:"source"`
-		IsSelf   bool   `json:"isSelf"`
-		Track    []struct {
-			Time string  `json:"time"`
-			Lat  float64 `json:"lat"`
-			Lon  float64 `json:"lon"`
-		} `json:"track"`
-	} `json:"boats"`
-}
-
-type eventsFile struct {
-	Events []struct {
-		ID    string  `json:"id"`
-		Type  string  `json:"type"`
-		Time  string  `json:"time"`
-		Lat   float64 `json:"lat"`
-		Lon   float64 `json:"lon"`
-		Label string  `json:"label"`
-	} `json:"events"`
-}
-
 func TestReferenceRaceBundleHasCanonicalFiles(t *testing.T) {
-	bundleDir := filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race")
+	bundleDir := repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race")
 
 	requiredFiles := []string{
 		"index.md",
@@ -65,7 +25,7 @@ func TestReferenceRaceBundleHasCanonicalFiles(t *testing.T) {
 }
 
 func TestReferenceRaceDataParsesAndIncludesCoreEntities(t *testing.T) {
-	bundleDir := filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race")
+	bundleDir := repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race")
 
 	var course courseFile
 	readJSONFixture(t, filepath.Join(bundleDir, "course.json"), &course)
@@ -104,17 +64,5 @@ func TestReferenceRaceDataParsesAndIncludesCoreEntities(t *testing.T) {
 	}
 	if events.Events[0].ID == "" || events.Events[0].Type == "" || events.Events[0].Time == "" {
 		t.Fatal("expected required event fields to be populated")
-	}
-}
-
-func readJSONFixture(t *testing.T, path string, target any) {
-	t.Helper()
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("failed to read %s: %v", path, err)
-	}
-	if err := json.Unmarshal(data, target); err != nil {
-		t.Fatalf("failed to parse %s: %v", path, err)
 	}
 }

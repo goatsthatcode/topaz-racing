@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -13,7 +13,7 @@ func TestRaceVizPublishesReplayTrackContract(t *testing.T) {
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = os.Environ()
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -48,7 +48,7 @@ func TestRaceVizPublishesReplayTrackContract(t *testing.T) {
 }
 
 func TestRaceVizBootstrapImplementsStaticBoatTrackRendering(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("assets", "js", "race-viz.js"))
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
 	if err != nil {
 		t.Fatalf("failed to read race viz bootstrap: %v", err)
 	}
@@ -99,7 +99,7 @@ func TestReferenceRaceBoatsProvideRenderableTrackPolylines(t *testing.T) {
 	var boats raceBoatsFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
 		&boats,
 	)
 
@@ -117,7 +117,7 @@ func TestReferenceRaceBoatsSupportInterpolatedReplayMidpoint(t *testing.T) {
 	var boats raceBoatsFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
 		&boats,
 	)
 

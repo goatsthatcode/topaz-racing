@@ -1,13 +1,12 @@
-package topazracing
+package tests
 
 import (
 	"os"
-	"path/filepath"
 	"testing"
 )
 
 func TestRaceVizUsageDocCoversShortcodeAndBundleExamples(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-viz-usage.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-viz-usage.md"))
 	if err != nil {
 		t.Fatalf("failed to read race viz usage doc: %v", err)
 	}

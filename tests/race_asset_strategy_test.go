@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -12,7 +12,7 @@ func TestRaceVizAssetsOnlyLoadOnPagesThatRenderTheEmbed(t *testing.T) {
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = append(os.Environ(), "HUGO_ENVIRONMENT=development")
 
 	output, err := cmd.CombinedOutput()
@@ -41,15 +41,4 @@ func TestRaceVizAssetsOnlyLoadOnPagesThatRenderTheEmbed(t *testing.T) {
 		strings.Contains(homePage, `data-race-viz-asset="maplibre-js"`) {
 		t.Fatal("expected non-embedded home page to omit race visualization assets")
 	}
-}
-
-func readBuiltHTML(t *testing.T, path string) string {
-	t.Helper()
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("failed to read built HTML %s: %v", path, err)
-	}
-
-	return string(data)
 }

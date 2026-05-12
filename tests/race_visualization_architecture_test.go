@@ -1,17 +1,16 @@
-package topazracing
+package tests
 
 import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
 func TestRaceVizUsesSharedEngineContractAcrossModes(t *testing.T) {
 	outputDir := t.TempDir()
 
-	tempPagePath := filepath.Join("content", "post", "race-viz-architecture-test.md")
+	tempPagePath := repoFile("content", "post", "race-viz-architecture-test.md")
 	tempPage := `---
 title: "Race Viz Architecture Test"
 ---
@@ -27,7 +26,7 @@ title: "Race Viz Architecture Test"
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = os.Environ()
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -53,7 +52,7 @@ title: "Race Viz Architecture Test"
 }
 
 func TestRaceVisualizationArchitectureNoteDocumentsSharedModeBoundaries(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-visualization-architecture.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-visualization-architecture.md"))
 	if err != nil {
 		t.Fatalf("failed to read architecture note: %v", err)
 	}
@@ -72,13 +71,5 @@ func TestRaceVisualizationArchitectureNoteDocumentsSharedModeBoundaries(t *testi
 
 	for _, snippet := range expectedSnippets {
 		assertContains(t, text, snippet)
-	}
-}
-
-func assertContains(t *testing.T, text, snippet string) {
-	t.Helper()
-
-	if !strings.Contains(text, snippet) {
-		t.Fatalf("expected content to include %q", snippet)
 	}
 }

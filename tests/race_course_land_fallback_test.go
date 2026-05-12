@@ -1,7 +1,6 @@
-package topazracing
+package tests
 
 import (
-	"path/filepath"
 	"testing"
 )
 
@@ -9,7 +8,7 @@ func TestReferenceRaceCourseUsesStraightRouteSegment(t *testing.T) {
 	var course raceCourseFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "course.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "course.json"),
 		&course,
 	)
 
@@ -89,23 +88,4 @@ func TestCourseRouteExpansionIncludesManualShapingPoints(t *testing.T) {
 			t.Fatalf("expected route coordinate %d to be %+v, got %+v", i, expected, actual)
 		}
 	}
-}
-
-func expandCourseRouteCoordinates(course raceCourseFile) []raceCoordinate {
-	coordinates := make([]raceCoordinate, 0, len(course.Elements))
-
-	for i, element := range course.Elements {
-		coordinates = append(coordinates, raceCoordinate{
-			Lat: element.Lat,
-			Lon: element.Lon,
-		})
-
-		if i == len(course.Elements)-1 {
-			continue
-		}
-
-		coordinates = append(coordinates, element.ControlPointsToNext...)
-	}
-
-	return coordinates
 }

@@ -1,54 +1,16 @@
-package topazracing
+package tests
 
 import (
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 	"time"
 )
 
-type raceBoatsSchemaDocument struct {
-	Required []string `json:"required"`
-	Defs     struct {
-		Boat struct {
-			Required []string `json:"required"`
-		} `json:"boat"`
-		TrackPoint struct {
-			Required   []string `json:"required"`
-			Properties struct {
-				Time struct {
-					Format string `json:"format"`
-				} `json:"time"`
-			} `json:"properties"`
-		} `json:"trackPoint"`
-	} `json:"$defs"`
-}
-
-type raceBoatsFile struct {
-	Boats []raceBoat `json:"boats"`
-}
-
-type raceBoat struct {
-	ID       string           `json:"id"`
-	Name     string           `json:"name"`
-	Color    string           `json:"color"`
-	BoatType string           `json:"boatType"`
-	Source   string           `json:"source"`
-	IsSelf   bool             `json:"isSelf"`
-	Track    []raceTrackPoint `json:"track"`
-}
-
-type raceTrackPoint struct {
-	Time string  `json:"time"`
-	Lat  float64 `json:"lat"`
-	Lon  float64 `json:"lon"`
-}
-
 func TestRaceBoatsSchemaDeclaresV1Contract(t *testing.T) {
 	var schema raceBoatsSchemaDocument
-	readJSONFixture(t, filepath.Join("schemas", "race-boats-v1.schema.json"), &schema)
+	readJSONFixture(t, repoFile("schemas", "race-boats-v1.schema.json"), &schema)
 
 	assertStringSet(t, schema.Required, []string{"boats"})
 	assertStringSet(t, schema.Defs.Boat.Required, []string{"id", "name", "color", "boatType", "source", "isSelf", "track"})
@@ -63,7 +25,7 @@ func TestReferenceRaceBoatsSatisfyV1Contract(t *testing.T) {
 	var boats raceBoatsFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
 		&boats,
 	)
 
@@ -104,7 +66,7 @@ func TestReferenceRaceBoatsSatisfyV1Contract(t *testing.T) {
 }
 
 func TestRaceBoatsSchemaDocReferencesSchemaArtifact(t *testing.T) {
-	content, err := os.ReadFile(filepath.Join("docs", "race-boats-schema.md"))
+	content, err := os.ReadFile(repoFile("docs", "race-boats-schema.md"))
 	if err != nil {
 		t.Fatalf("failed to read boats schema doc: %v", err)
 	}
@@ -118,7 +80,7 @@ func TestReferenceRaceBoatsIncludeSelfAndCompetitor(t *testing.T) {
 	var boats raceBoatsFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "boats.json"),
 		&boats,
 	)
 

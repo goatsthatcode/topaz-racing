@@ -1,27 +1,19 @@
-package topazracing
+package tests
 
 import (
 	"os"
-	"path/filepath"
 	"testing"
 )
 
-// ─── Task 8.1: Race authoring workflow documentation ─────────────────────────
-
-// TestAuthoringWorkflowDocExists verifies that the race authoring guide is
-// present so authors can discover the workflow without reading source code.
 func TestAuthoringWorkflowDocExists(t *testing.T) {
-	_, err := os.Stat(filepath.Join("docs", "race-authoring-workflow.md"))
+	_, err := os.Stat(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("docs/race-authoring-workflow.md must exist: %v", err)
 	}
 }
 
-// TestAuthoringWorkflowDocCoversDirectoryStructure verifies the guide documents
-// the canonical leaf-bundle directory layout so an author knows exactly where
-// to put new files.
 func TestAuthoringWorkflowDocCoversDirectoryStructure(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -39,10 +31,8 @@ func TestAuthoringWorkflowDocCoversDirectoryStructure(t *testing.T) {
 	}
 }
 
-// TestAuthoringWorkflowDocCoversCourseJSON verifies the guide explains how to
-// author course.json including element types and required fields.
 func TestAuthoringWorkflowDocCoversCourseJSON(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -63,10 +53,8 @@ func TestAuthoringWorkflowDocCoversCourseJSON(t *testing.T) {
 	}
 }
 
-// TestAuthoringWorkflowDocCoversBoatsJSON verifies the guide explains the boat
-// track format including the isSelf boat, competitor boats, and track points.
 func TestAuthoringWorkflowDocCoversBoatsJSON(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -85,10 +73,8 @@ func TestAuthoringWorkflowDocCoversBoatsJSON(t *testing.T) {
 	}
 }
 
-// TestAuthoringWorkflowDocCoversEventsJSON verifies the guide explains event
-// annotation authoring including common event types and optional fields.
 func TestAuthoringWorkflowDocCoversEventsJSON(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -105,11 +91,8 @@ func TestAuthoringWorkflowDocCoversEventsJSON(t *testing.T) {
 	}
 }
 
-// TestAuthoringWorkflowDocCoversEmbedShortcode verifies the guide shows how to
-// embed the visualization in markdown using the race-viz shortcode, including
-// both the self-page form and the cross-page reference form.
 func TestAuthoringWorkflowDocCoversEmbedShortcode(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -124,10 +107,8 @@ func TestAuthoringWorkflowDocCoversEmbedShortcode(t *testing.T) {
 	}
 }
 
-// TestAuthoringWorkflowDocReferencesReferenceRace verifies the guide points to
-// the canonical reference race bundle so authors have a working example to copy.
 func TestAuthoringWorkflowDocReferencesReferenceRace(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}
@@ -136,10 +117,8 @@ func TestAuthoringWorkflowDocReferencesReferenceRace(t *testing.T) {
 	assertContains(t, text, "bishop-rock-race")
 }
 
-// TestAuthoringWorkflowDocReferencesSchemas verifies the guide points to the
-// machine-readable JSON schemas so authors can validate their files.
 func TestAuthoringWorkflowDocReferencesSchemas(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-authoring-workflow.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-authoring-workflow.md"))
 	if err != nil {
 		t.Fatalf("failed to read docs/race-authoring-workflow.md: %v", err)
 	}

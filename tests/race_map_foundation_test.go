@@ -1,10 +1,9 @@
-package topazracing
+package tests
 
 import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ func TestRaceVizPublishesMapFoundationContractForProductionBuilds(t *testing.T) 
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = os.Environ()
 
 	output, err := cmd.CombinedOutput()
@@ -35,7 +34,7 @@ func TestRaceVizPublishesDevelopmentTileEndpointInMapStyle(t *testing.T) {
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = append(os.Environ(), "HUGO_ENVIRONMENT=development")
 
 	output, err := cmd.CombinedOutput()
@@ -53,7 +52,7 @@ func TestRaceVizPublishesDevelopmentTileEndpointInMapStyle(t *testing.T) {
 }
 
 func TestRaceMapFoundationDocCapturesPrototypeRelationshipAndEnvironmentChoice(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-map-foundation.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-map-foundation.md"))
 	if err != nil {
 		t.Fatalf("failed to read map foundation doc: %v", err)
 	}
@@ -73,15 +72,4 @@ func TestRaceMapFoundationDocCapturesPrototypeRelationshipAndEnvironmentChoice(t
 	for _, snippet := range expectedSnippets {
 		assertContains(t, text, snippet)
 	}
-}
-
-func readBuiltFile(t *testing.T, path string) string {
-	t.Helper()
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("failed to read built file %s: %v", path, err)
-	}
-
-	return strings.TrimSpace(string(data))
 }

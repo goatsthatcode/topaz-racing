@@ -1,52 +1,16 @@
-package topazracing
+package tests
 
 import (
-	"encoding/json"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 	"time"
 )
 
-type raceEventsSchemaDocument struct {
-	Required []string `json:"required"`
-	Defs     struct {
-		Event struct {
-			Required   []string          `json:"required"`
-			AnyOf      []json.RawMessage `json:"anyOf"`
-			Properties struct {
-				Type struct {
-					Enum []string `json:"enum"`
-				} `json:"type"`
-				Time struct {
-					Format string `json:"format"`
-				} `json:"time"`
-				Label       json.RawMessage `json:"label"`
-				Description json.RawMessage `json:"description"`
-			} `json:"properties"`
-		} `json:"event"`
-	} `json:"$defs"`
-}
-
-type raceEventsFile struct {
-	Events []raceEvent `json:"events"`
-}
-
-type raceEvent struct {
-	ID          string   `json:"id"`
-	Type        string   `json:"type"`
-	Time        string   `json:"time"`
-	Lat         *float64 `json:"lat"`
-	Lon         *float64 `json:"lon"`
-	Label       string   `json:"label"`
-	Description string   `json:"description"`
-}
-
 func TestRaceEventsSchemaDeclaresV1Contract(t *testing.T) {
 	var schema raceEventsSchemaDocument
-	readJSONFixture(t, filepath.Join("schemas", "race-events-v1.schema.json"), &schema)
+	readJSONFixture(t, repoFile("schemas", "race-events-v1.schema.json"), &schema)
 
 	assertStringSet(t, schema.Required, []string{"events"})
 	assertStringSet(t, schema.Defs.Event.Required, []string{"id", "type"})
@@ -67,7 +31,7 @@ func TestReferenceRaceEventsSatisfyV1Contract(t *testing.T) {
 	var events raceEventsFile
 	readJSONFixture(
 		t,
-		filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "events.json"),
+		repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "events.json"),
 		&events,
 	)
 
@@ -103,7 +67,7 @@ func TestReferenceRaceEventsSatisfyV1Contract(t *testing.T) {
 }
 
 func TestRaceEventsSchemaDocReferencesSchemaArtifact(t *testing.T) {
-	content, err := os.ReadFile(filepath.Join("docs", "race-events-schema.md"))
+	content, err := os.ReadFile(repoFile("docs", "race-events-schema.md"))
 	if err != nil {
 		t.Fatalf("failed to read events schema doc: %v", err)
 	}

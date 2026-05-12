@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"path/filepath"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestReferenceRaceBundleProvidesCompleteV1Dataset(t *testing.T) {
-	bundleDir := filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race")
+	bundleDir := repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race")
 
 	var course raceCourseFile
 	readJSONFixture(t, filepath.Join(bundleDir, "course.json"), &course)

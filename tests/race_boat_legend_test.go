@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -7,10 +7,8 @@ import (
 	"testing"
 )
 
-// Task 5.1: Boat legend and visibility toggles
-
 func TestRaceVizBootstrapImplementsBoatLegendToggles(t *testing.T) {
-	data, err := os.ReadFile("assets/js/race-viz.js")
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
 	if err != nil {
 		t.Fatalf("failed to read race viz bootstrap: %v", err)
 	}
@@ -18,30 +16,19 @@ func TestRaceVizBootstrapImplementsBoatLegendToggles(t *testing.T) {
 	source := string(data)
 
 	expectedSnippets := []string{
-		// Per-boat visibility state in createRaceVizState
 		`visibility`,
 		`hiddenBoatIds: new Set()`,
-
-		// Toggle button element on each legend item
 		`race-viz-boat-toggle`,
 		`data-race-viz-boat-toggle`,
 		`aria-pressed`,
-
-		// Hidden state tracked via dataset property on legend items
 		`raceVizBoatHidden`,
-
-		// Core toggle functions
 		`syncBoatLegendVisibility`,
 		`attachBoatLegendToggles`,
 		`applyBoatVisibilityToLayers`,
-
-		// Toggle event wiring: clicking a toggle updates visibility then applies to map
 		`state.visibility.hiddenBoatIds.has`,
 		`state.visibility.hiddenBoatIds.delete`,
 		`state.visibility.hiddenBoatIds.add`,
 		`applyBoatVisibilityToLayers(state.map.instance, state)`,
-
-		// attachBoatLegendToggles is called after renderBoatLegend in loadBoats
 		`attachBoatLegendToggles(root, state)`,
 	}
 
@@ -51,7 +38,7 @@ func TestRaceVizBootstrapImplementsBoatLegendToggles(t *testing.T) {
 }
 
 func TestRaceVizBootstrapFiltersHiddenBoatsFromReplayLayers(t *testing.T) {
-	data, err := os.ReadFile("assets/js/race-viz.js")
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
 	if err != nil {
 		t.Fatalf("failed to read race viz bootstrap: %v", err)
 	}
@@ -59,19 +46,12 @@ func TestRaceVizBootstrapFiltersHiddenBoatsFromReplayLayers(t *testing.T) {
 	source := string(data)
 
 	expectedSnippets := []string{
-		// renderReplayFrame reads visibility state and passes it down
 		`state.visibility.hiddenBoatIds`,
 		`buildReplayTailFeatures(state.replay.timeline, state.replay.currentTimeMs, hiddenBoatIds)`,
 		`buildBoatMarkerFeatures(state.replay.snapshot, hiddenBoatIds)`,
-
-		// buildReplayTailFeatures accepts hiddenBoatIds and skips hidden boats
 		`hiddenBoatIds = null`,
 		`hiddenBoatIds !== null && hiddenBoatIds.has`,
-
-		// buildBoatMarkerFeatures accepts hiddenBoatIds and filters before mapping
 		`hiddenBoatIds === null || !hiddenBoatIds.has`,
-
-		// Pre-play mode: visibility applied as a map filter on the tracks layer
 		`applyBoatVisibilityToLayers`,
 		`!state.replay.started`,
 	}
@@ -86,7 +66,7 @@ func TestRaceVizFleetPanelAppearsInBuiltRacePage(t *testing.T) {
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = os.Environ()
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

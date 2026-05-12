@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -13,7 +13,7 @@ func TestRaceVizShortcodeBuildsReferenceRacePage(t *testing.T) {
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = os.Environ()
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -46,12 +46,12 @@ func TestRaceVizShortcodeBuildsReferenceRacePage(t *testing.T) {
 func TestRaceVizShortcodeBuildsCourseModeWithoutReplayPayloads(t *testing.T) {
 	outputDir := t.TempDir()
 
-	courseData, err := os.ReadFile(filepath.Join("content", "races", "dan-byrne-2025", "bishop-rock-race", "course.json"))
+	courseData, err := os.ReadFile(repoFile("content", "races", "dan-byrne-2025", "bishop-rock-race", "course.json"))
 	if err != nil {
 		t.Fatalf("failed to read reference course fixture: %v", err)
 	}
 
-	tempBundleDir := filepath.Join("content", "races", "test-season", "course-only-race")
+	tempBundleDir := repoFile("content", "races", "test-season", "course-only-race")
 	if err := os.MkdirAll(tempBundleDir, 0o755); err != nil {
 		t.Fatalf("failed to create temporary race bundle: %v", err)
 	}
@@ -62,10 +62,10 @@ func TestRaceVizShortcodeBuildsCourseModeWithoutReplayPayloads(t *testing.T) {
 		t.Fatalf("failed to write temporary race bundle course: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = os.RemoveAll(filepath.Join("content", "races", "test-season"))
+		_ = os.RemoveAll(repoFile("content", "races", "test-season"))
 	})
 
-	tempPagePath := filepath.Join("content", "post", "race-viz-course-only-test.md")
+	tempPagePath := repoFile("content", "post", "race-viz-course-only-test.md")
 	tempPage := `---
 title: "Race Viz Course Only Test"
 ---
@@ -81,7 +81,7 @@ title: "Race Viz Course Only Test"
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
 	cmd.Env = os.Environ()
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

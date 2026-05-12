@@ -1,4 +1,4 @@
-package topazracing
+package tests
 
 import (
 	"os"
@@ -11,7 +11,7 @@ func TestRaceVizPublishesTileHostingContractForProductionBuilds(t *testing.T) {
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = os.Environ()
 
 	output, err := cmd.CombinedOutput()
@@ -38,7 +38,7 @@ func TestRaceVizPublishesDevelopmentTileHostingContract(t *testing.T) {
 	outputDir := t.TempDir()
 
 	cmd := exec.Command("hugo", "--destination", outputDir)
-	cmd.Dir = "."
+	cmd.Dir = repoRoot
 	cmd.Env = append(os.Environ(), "HUGO_ENVIRONMENT=development")
 
 	output, err := cmd.CombinedOutput()
@@ -53,7 +53,7 @@ func TestRaceVizPublishesDevelopmentTileHostingContract(t *testing.T) {
 }
 
 func TestRaceTileHostingStrategyDocCapturesPreviewProductionAndExpansionPlan(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("docs", "race-tile-hosting-strategy.md"))
+	data, err := os.ReadFile(repoFile("docs", "race-tile-hosting-strategy.md"))
 	if err != nil {
 		t.Fatalf("failed to read tile hosting strategy doc: %v", err)
 	}
