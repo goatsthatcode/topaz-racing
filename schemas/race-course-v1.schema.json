@@ -71,8 +71,10 @@
           "enum": [
             "mark",
             "start_line",
-            "finish_line"
-          ]
+            "finish_line",
+            "waypoint"
+          ],
+          "description": "Element type. `waypoint` is route-visible (appears in the connecting line) but renders no marker or label."
         },
         "lat": {
           "type": "number",

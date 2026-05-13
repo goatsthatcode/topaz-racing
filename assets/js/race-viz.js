@@ -1274,6 +1274,7 @@ function renderCourseLayers(map, state) {
       "all",
       ["==", ["geometry-type"], "Point"],
       ["!=", ["get", "name"], ""],
+      ["match", ["get", "type"], ["mark", "start_line", "finish_line"], true, false],
     ],
     layout: {
       "text-field": ["upcase", ["get", "name"]],

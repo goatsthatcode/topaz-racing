@@ -18,19 +18,9 @@ The `data-race-viz-replay-speed="60"` attribute emitted by the shortcode is neve
 
 ---
 
-### BUG-2: `waypoint` element type used in course data but not allowed by schema
+### ~~BUG-2: `waypoint` element type used in course data but not allowed by schema~~
 
-**Files:** `content/races/dan-byrne-2025/meridian-400-race/course.json`, `content/races/dan-byrne-2025/catalina-backside-race/course.json`, `schemas/race-course-v1.schema.json`
-
-The Meridian 400 and Catalina Backside courses use `"type": "waypoint"` on intermediate routing elements. The schema (`race-course-v1.schema.json`) only permits `"mark"`, `"start_line"`, and `"finish_line"` in the `type` enum. This means both files fail JSON schema validation.
-
-In the renderer, `waypoint` type elements are silently excluded from the marks layer filter (`["==", ["get", "type"], "mark"]`) and the start/finish layer filter. They do appear in the route line coordinates (since `buildCourseRouteCoordinates` iterates all elements), which may be intentional — but the behavior is undocumented and unsupported by the schema.
-
-The proper V1 mechanism for invisible route-shaping points is `controlPointsToNext` on the preceding element. The `waypoint` type is being used as a workaround.
-
-**Options:**
-- Add `"waypoint"` to the schema's type enum and document its rendering semantics (route-visible, no marker), OR
-- Replace `waypoint` elements in the existing course files with `controlPointsToNext` arrays on the preceding element.
+- [x] Resolved on 2026-05-13: Added `"waypoint"` to the `type` enum in `schemas/race-course-v1.schema.json` with a description documenting its semantics (route-visible, no marker, no label). The Catalina Backside course's `catalina-south-coast` waypoint now passes schema validation. Tests added in `race_course_rendering_test.go`.
 
 ---
 
@@ -44,15 +34,9 @@ The `south-of-channel-islands` element has `"name": ""`. The schema defines `nam
 
 ---
 
-### BUG-4: `catalina-south-coast` waypoint with a name renders an orphaned text label
+### ~~BUG-4: `catalina-south-coast` waypoint with a name renders an orphaned text label~~
 
-**File:** `content/races/dan-byrne-2025/catalina-backside-race/course.json`
-
-The `catalina-south-coast` element has `"type": "waypoint"` (already flagged by BUG-2 as schema-invalid) and `"name": "Catalina South Coast"`. Because `renderCourseLayers` builds the labels layer with only a name-check filter (`["!=", ["get", "name"], ""]`) and no type guard, this element renders a floating "CATALINA SOUTH COAST" text label on the map with no corresponding circle beneath it. The result looks broken — a disembodied label over open water.
-
-The `south-of-channel-islands` waypoint in the Meridian 400 had an empty name so it was silently invisible; the Catalina waypoint is actively misleading.
-
-**Fix:** Either replace the `waypoint` element with `controlPointsToNext` on the preceding mark (the V1-correct approach per BUG-2), or add a type guard to `labelsLayerID` so that only `mark`, `start_line`, and `finish_line` elements emit labels.
+- [x] Resolved on 2026-05-13: Added a type guard to the `labelsLayerID` layer filter in `renderCourseLayers` so that only `mark`, `start_line`, and `finish_line` elements emit labels: `["match", ["get", "type"], ["mark", "start_line", "finish_line"], true, false]`. Waypoints with names no longer produce disembodied labels on the map. Test added in `race_course_rendering_test.go`.
 
 ---
 
@@ -74,15 +58,9 @@ Running `go build -o jibeset-import ./cmd/jibeset-import` (or similar) produces 
 
 ---
 
-### GAP-2: Mark rounding direction is stored but never visually rendered
+### ~~GAP-2: Mark rounding direction is stored but never visually rendered~~
 
-**Spec requirement:** "rounding direction support" with values `port`, `starboard`, `none`
-
-**Files:** All `course.json` files, `assets/js/race-viz.js` — `renderCourseLayers` (line 1085)
-
-The `rounding` field is required in the schema and is stored in GeoJSON feature properties (`buildCourseFeatures`), but `renderCourseLayers` never uses it. There is no visual indicator on the mark showing which way to round. A sailor reading the map cannot tell from the visualization alone whether to pass a mark on the port or starboard side.
-
-A typical V1 approach: render a small arc or arrow on the mark, or apply a distinct fill color to indicate rounding direction.
+- [x] Resolved on 2026-05-13: Added `roundingLayerID` (`race-viz-course-marks-rounding`) in `renderCourseLayers`. The layer renders a larger outer circle behind each `mark` element using `roundingPortColor` (red) for port-rounding and `roundingStarboardColor` (green) for starboard-rounding marks. Waypoints and start/finish elements are excluded by the `["==", ["get", "type"], "mark"]` filter. Tests in `race_course_rendering_test.go` (`TestRaceVizBootstrapImplementsMarkRoundingDirectionLayer`).
 
 ---
 
@@ -94,15 +72,9 @@ A typical V1 approach: render a small arc or arrow on the mark, or apply a disti
 
 ---
 
-### GAP-4: Boats load failure has no user-visible error state
+### ~~GAP-4: Boats load failure has no user-visible error state~~
 
-**File:** `assets/js/race-viz.js` — `setBoatsState` (line 305), `loadBoats` (line 1814)
-
-When `loadBoats` fails (network error, malformed JSON, etc.), `setBoatsState(root, stage, state, "error")` sets `data-race-viz-boats-state="error"` on the root and stage elements, but there is no corresponding visual fallback. The map renders the chart and course normally, the fleet panel is blank, the replay controls are disabled, and the user has no indication of what went wrong.
-
-By contrast, course failures call `renderCourseFallback(stage, message)` which displays a visible error banner at the bottom of the map stage.
-
-**Fix:** Add a `renderBoatsFallback(stage, message)` function (or reuse `renderCourseFallback`) so that a boats-load failure shows an actionable error in the UI.
+- [x] Resolved on 2026-05-13 (commit c522531): Added `renderBoatsFallback(stage, message)` in `assets/js/race-viz.js`, called from the `loadBoats` error path. A boats-load failure now shows an error banner at the bottom of the map stage, consistent with `renderCourseFallback`.
 
 ---
 

@@ -13,7 +13,7 @@ func TestRaceCourseSchemaDeclaresV1Contract(t *testing.T) {
 
 	assertStringSet(t, schema.Required, []string{"id", "name", "elements"})
 	assertStringSet(t, schema.Defs.CourseElement.Required, []string{"id", "type", "lat", "lon", "rounding"})
-	assertStringSet(t, schema.Defs.CourseElement.Properties.Type.Enum, []string{"mark", "start_line", "finish_line"})
+	assertStringSet(t, schema.Defs.CourseElement.Properties.Type.Enum, []string{"mark", "start_line", "finish_line", "waypoint"})
 	assertStringSet(t, schema.Defs.CourseElement.Properties.Rounding.Enum, []string{"port", "starboard", "none"})
 
 	if len(schema.Defs.CourseElement.Properties.ControlPointsToNext) == 0 {
@@ -40,7 +40,7 @@ func TestReferenceRaceCourseSatisfiesV1Contract(t *testing.T) {
 		if element.ID == "" {
 			t.Fatalf("expected element %d to have an id", i)
 		}
-		if !slices.Contains([]string{"mark", "start_line", "finish_line"}, element.Type) {
+		if !slices.Contains([]string{"mark", "start_line", "finish_line", "waypoint"}, element.Type) {
 			t.Fatalf("unexpected element type %q", element.Type)
 		}
 		if !slices.Contains([]string{"port", "starboard", "none"}, element.Rounding) {

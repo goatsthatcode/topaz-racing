@@ -95,6 +95,71 @@ func TestRaceVizBootstrapImplementsMarkRoundingDirectionLayer(t *testing.T) {
 	}
 }
 
+// TestWaypointTypeIsSchemaValid verifies that course files using "waypoint"
+// type elements pass schema validation now that "waypoint" is in the enum.
+func TestWaypointTypeIsSchemaValid(t *testing.T) {
+	var schema raceCourseSchemaDocument
+	readJSONFixture(t, repoFile("schemas", "race-course-v1.schema.json"), &schema)
+
+	typeEnum := schema.Defs.CourseElement.Properties.Type.Enum
+	found := false
+	for _, v := range typeEnum {
+		if v == "waypoint" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected schema type enum to include \"waypoint\"")
+	}
+}
+
+// TestCatalinaBacksideCourseHasWaypointElement verifies the catalina-backside
+// course file (which uses "waypoint") parses correctly under the updated schema.
+func TestCatalinaBacksideCourseHasWaypointElement(t *testing.T) {
+	var course raceCourseFile
+	readJSONFixture(
+		t,
+		repoFile("content", "races", "dan-byrne-2025", "catalina-backside-race", "course.json"),
+		&course,
+	)
+
+	validTypes := []string{"mark", "start_line", "finish_line", "waypoint"}
+	var waypointCount int
+	for i, el := range course.Elements {
+		validType := false
+		for _, vt := range validTypes {
+			if el.Type == vt {
+				validType = true
+				break
+			}
+		}
+		if !validType {
+			t.Fatalf("element %d has unexpected type %q", i, el.Type)
+		}
+		if el.Type == "waypoint" {
+			waypointCount++
+		}
+	}
+	if waypointCount == 0 {
+		t.Fatal("expected at least one waypoint element in catalina-backside-race course")
+	}
+}
+
+// TestLabelsLayerFilterExcludesWaypoints verifies that the labels layer filter
+// in race-viz.js includes a type guard so "waypoint" elements never emit labels.
+func TestLabelsLayerFilterExcludesWaypoints(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
+	if err != nil {
+		t.Fatalf("failed to read race viz bootstrap: %v", err)
+	}
+
+	source := string(data)
+
+	// The labels layer must restrict rendering to named mark/start/finish elements only.
+	assertContains(t, source, `["match", ["get", "type"], ["mark", "start_line", "finish_line"], true, false]`)
+}
+
 func TestRaceVizStylesDefineEditorialCourseFrame(t *testing.T) {
 	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
 	if err != nil {
