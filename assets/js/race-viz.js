@@ -936,6 +936,46 @@ function interpolateBoatPosition(boat, timeMs) {
   };
 }
 
+// Inverse of interpolateBoatPosition: given a map position, find the closest
+// point on the boat's track and return the interpolated timestamp at that point.
+function interpolateTimeFromPosition(boat, lngLat) {
+  const track = boat.track;
+  if (track.length === 0) return boat.startTimeMs;
+  if (track.length === 1) return track[0].timestampMs;
+
+  const curLon = lngLat.lng;
+  const curLat = lngLat.lat;
+
+  let bestTimeMs = track[0].timestampMs;
+  let bestDistSq = Infinity;
+
+  for (let i = 1; i < track.length; i++) {
+    const p0 = track[i - 1];
+    const p1 = track[i];
+
+    const dx = p1.lon - p0.lon;
+    const dy = p1.lat - p0.lat;
+    const segLenSq = dx * dx + dy * dy;
+
+    let t = 0;
+    if (segLenSq > 0) {
+      t = ((curLon - p0.lon) * dx + (curLat - p0.lat) * dy) / segLenSq;
+      t = Math.max(0, Math.min(1, t));
+    }
+
+    const closestLon = p0.lon + t * dx;
+    const closestLat = p0.lat + t * dy;
+    const distSq = (curLon - closestLon) ** 2 + (curLat - closestLat) ** 2;
+
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestTimeMs = p0.timestampMs + t * (p1.timestampMs - p0.timestampMs);
+    }
+  }
+
+  return bestTimeMs;
+}
+
 function buildReplaySnapshot(timeline, requestedTimeMs) {
   const timeMs = Math.min(
     Math.max(requestedTimeMs, timeline.startTimeMs),
@@ -1770,7 +1810,7 @@ function attachTrackHoverInteractions(map, state) {
   const tailsLayerID = state.config.replayTails.layerID;
 
   for (const layerID of [tracksLayerID, tailsLayerID]) {
-    map.on("mouseenter", layerID, (event) => {
+    map.on("mousemove", layerID, (event) => {
       map.getCanvas().style.cursor = "crosshair";
 
       const feature = event.features?.[0];
@@ -1781,25 +1821,32 @@ function attachTrackHoverInteractions(map, state) {
       const props = feature.properties;
       const lngLat = event.lngLat;
 
-      if (state.hover.activeTooltip) {
-        state.hover.activeTooltip.remove();
-        state.hover.activeTooltip = null;
-      }
-
       const parts = [];
       if (props.name) {
         parts.push(`<strong class="race-viz-hover-name">${props.name}</strong>`);
       }
 
-      state.hover.activeTooltip = new window.maplibregl.Popup({
-        closeButton: false,
-        closeOnClick: false,
-        className: "race-viz-hover-tooltip",
-        offset: 10,
-      })
-        .setLngLat(lngLat)
-        .setHTML(`<div class="race-viz-hover-tooltip-content">${parts.join("")}</div>`)
-        .addTo(map);
+      const boat = state.replay.timeline?.boats?.find((b) => b.id === props.id);
+      if (boat) {
+        const timeMs = interpolateTimeFromPosition(boat, lngLat);
+        parts.push(`<time class="race-viz-hover-time">${formatReplayClockLabel(timeMs)}</time>`);
+      }
+
+      const html = `<div class="race-viz-hover-tooltip-content">${parts.join("")}</div>`;
+
+      if (state.hover.activeTooltip) {
+        state.hover.activeTooltip.setLngLat(lngLat).setHTML(html);
+      } else {
+        state.hover.activeTooltip = new window.maplibregl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          className: "race-viz-hover-tooltip",
+          offset: 10,
+        })
+          .setLngLat(lngLat)
+          .setHTML(html)
+          .addTo(map);
+      }
     });
 
     map.on("mouseleave", layerID, () => {

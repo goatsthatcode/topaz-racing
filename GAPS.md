@@ -68,15 +68,9 @@ Running `go build -o jibeset-import ./cmd/jibeset-import` (or similar) produces 
 
 ## Spec Gaps
 
-### GAP-1: Track hover tooltip shows only boat name — timestamp missing
+### ~~GAP-1: Track hover tooltip shows only boat name — timestamp missing~~
 
-**Spec requirement:** "hover tooltip with timestamp information"
-
-**File:** `assets/js/race-viz.js` — `attachTrackHoverInteractions` (line 1716)
-
-The boat marker hover (`attachBoatMarkerHoverInteractions`) shows boat name plus the current replay clock time — this satisfies the spec for live replay markers. However, the track line hover (`attachTrackHoverInteractions`) builds a tooltip that shows only the boat name, with no timestamp. When a user hovers over a static track line or a replay tail, there is no indication of when the boat was at the hovered point.
-
-To satisfy the spec, the track hover should interpolate the closest track time for the cursor's position on the line and display it in the tooltip.
+- [x] Resolved on 2026-05-13: Added `interpolateTimeFromPosition(boat, lngLat)` which projects the cursor onto the nearest track segment via dot-product and interpolates the timestamp linearly within that segment. `attachTrackHoverInteractions` now looks up the boat from `state.replay.timeline` by feature ID, calls `interpolateTimeFromPosition`, and displays the result as a `<time class="race-viz-hover-time">` element. Fixed together with UX-3.
 
 ---
 
@@ -146,15 +140,9 @@ The V1 data model was intentionally limited to a single lat/lon per element (see
 
 ---
 
-### UX-3: Track hover tooltip is static — does not follow the cursor along a track line
+### ~~UX-3: Track hover tooltip is static — does not follow the cursor along a track line~~
 
-**File:** `assets/js/race-viz.js` — `attachTrackHoverInteractions` (line 1716)
-
-The track hover interaction binds to `mouseenter` on the tracks and replay-tails layers. The tooltip is placed at `event.lngLat` at the moment the cursor first enters the feature. As the user moves the cursor along the track line, the tooltip stays fixed at the entry point — it does not update position or content.
-
-For point features (boat markers) this is fine. For line features (tracks and replay tails), a static tooltip at the entry edge is both positionally wrong and makes the "timestamp at position" enhancement (GAP-1) harder to wire up later, since a `mousemove` handler would be needed anyway to resolve the correct track segment.
-
-**Fix:** Replace the `mouseenter` handler with a `mousemove` listener that updates `popup.setLngLat(event.lngLat)` on each movement, and add the timestamp interpolation from GAP-1 at the same time. These two fixes are naturally batched.
+- [x] Resolved on 2026-05-13: Replaced the `mouseenter` handler in `attachTrackHoverInteractions` with a `mousemove` handler. The tooltip now follows the cursor: if the popup already exists it is updated via `setLngLat(lngLat).setHTML(html)` without recreation; if not, it is created fresh. Fixed together with GAP-1.
 
 ---
 

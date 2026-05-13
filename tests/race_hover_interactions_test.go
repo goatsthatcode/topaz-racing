@@ -69,6 +69,40 @@ func TestRaceVizBootstrapImplementsTrackHoverInteractions(t *testing.T) {
 		`state.config.tracks.layerID`,
 		`state.config.replayTails.layerID`,
 		`race-viz-hover-tooltip-content`,
+		// GAP-1: tooltip must show an interpolated timestamp for the hovered position
+		`race-viz-hover-time`,
+		`interpolateTimeFromPosition`,
+		// UX-3: tooltip must follow the cursor (mousemove, not just mouseenter)
+		`map.on("mousemove"`,
+		// tooltip is repositioned/updated in place rather than recreated each move
+		`state.hover.activeTooltip.setLngLat`,
+		// boat is looked up from the timeline so its track is available for interpolation
+		`state.replay.timeline?.boats?.find`,
+	}
+
+	for _, snippet := range expectedSnippets {
+		assertContains(t, source, snippet)
+	}
+}
+
+func TestRaceVizInterpolateTimeFromPosition(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
+	if err != nil {
+		t.Fatalf("failed to read race viz bootstrap: %v", err)
+	}
+
+	source := string(data)
+
+	// The function must exist and implement closest-segment projection.
+	expectedSnippets := []string{
+		`function interpolateTimeFromPosition(boat, lngLat)`,
+		`lngLat.lng`,
+		`lngLat.lat`,
+		// Projects cursor onto each track segment using dot-product clamped to [0,1].
+		`segLenSq`,
+		`Math.max(0, Math.min(1, t))`,
+		// Interpolates timestamp within the winning segment.
+		`p0.timestampMs + t * (p1.timestampMs - p0.timestampMs)`,
 	}
 
 	for _, snippet := range expectedSnippets {
