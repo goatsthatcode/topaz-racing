@@ -2,6 +2,7 @@ const DEFAULT_SHARED_LAYERS = ["map", "course", "tracks", "boats", "events", "co
 const DEFAULT_COURSE_SOURCE_ID = "race-viz-course";
 const DEFAULT_COURSE_ROUTE_LAYER_ID = "race-viz-course-route";
 const DEFAULT_COURSE_MARKS_LAYER_ID = "race-viz-course-marks";
+const DEFAULT_COURSE_ROUNDING_LAYER_ID = "race-viz-course-marks-rounding";
 const DEFAULT_COURSE_START_FINISH_LAYER_ID = "race-viz-course-start-finish";
 const DEFAULT_COURSE_LABELS_LAYER_ID = "race-viz-course-labels";
 const DEFAULT_TRACKS_SOURCE_ID = "race-viz-tracks";
@@ -26,6 +27,8 @@ const COURSE_STYLE_PRESETS = {
     routeDasharray: [1.1, 0.8],
     markColor: "rgba(122, 226, 255, 0.98)",
     markStrokeColor: "rgba(5, 20, 32, 0.98)",
+    roundingPortColor: "rgba(230, 90, 65, 0.92)",
+    roundingStarboardColor: "rgba(55, 200, 100, 0.92)",
     startColor: "rgba(255, 211, 92, 0.98)",
     finishColor: "rgba(255, 112, 146, 0.98)",
     labelColor: "rgba(220, 248, 255, 0.96)",
@@ -85,6 +88,8 @@ function createRaceVizConfig(root) {
         root.dataset.raceVizCourseRouteLayer ?? DEFAULT_COURSE_ROUTE_LAYER_ID,
       marksLayerID:
         root.dataset.raceVizCourseMarksLayer ?? DEFAULT_COURSE_MARKS_LAYER_ID,
+      roundingLayerID:
+        root.dataset.raceVizCourseRoundingLayer ?? DEFAULT_COURSE_ROUNDING_LAYER_ID,
       startFinishLayerID:
         root.dataset.raceVizCourseStartFinishLayer ?? DEFAULT_COURSE_START_FINISH_LAYER_ID,
       labelsLayerID:
@@ -1110,6 +1115,7 @@ function renderCourseLayers(map, state) {
   const source = state.config.course.sourceID;
   const routeLayerID = state.config.course.routeLayerID;
   const marksLayerID = state.config.course.marksLayerID;
+  const roundingLayerID = state.config.course.roundingLayerID;
   const startFinishLayerID = state.config.course.startFinishLayerID;
   const labelsLayerID = state.config.course.labelsLayerID;
   const courseStyle = getCourseStyle(state.config);
@@ -1180,6 +1186,28 @@ function renderCourseLayers(map, state) {
       "circle-radius": 9,
       "circle-stroke-width": 3,
       "circle-stroke-color": courseStyle.markStrokeColor,
+    },
+  });
+
+  ensureCourseLayer(map, roundingLayerID, {
+    type: "circle",
+    source,
+    filter: [
+      "all",
+      ["==", ["geometry-type"], "Point"],
+      ["==", ["get", "type"], "mark"],
+      ["match", ["get", "rounding"], ["port", "starboard"], true, false],
+    ],
+    paint: {
+      "circle-color": [
+        "match",
+        ["get", "rounding"],
+        "port", courseStyle.roundingPortColor,
+        "starboard", courseStyle.roundingStarboardColor,
+        "rgba(0,0,0,0)",
+      ],
+      "circle-radius": 11,
+      "circle-stroke-width": 0,
     },
   });
 

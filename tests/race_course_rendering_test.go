@@ -27,6 +27,7 @@ func TestRaceVizPublishesCourseRenderingContract(t *testing.T) {
 		`data-race-viz-course-source="race-viz-course"`,
 		`data-race-viz-course-route-layer="race-viz-course-route"`,
 		`data-race-viz-course-marks-layer="race-viz-course-marks"`,
+		`data-race-viz-course-rounding-layer="race-viz-course-marks-rounding"`,
 		`data-race-viz-course-start-finish-layer="race-viz-course-start-finish"`,
 		`data-race-viz-course-labels-layer="race-viz-course-labels"`,
 	}
@@ -54,6 +55,7 @@ func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
 		`type: "geojson"`,
 		`race-viz-course-route`,
 		`race-viz-course-marks`,
+		`race-viz-course-marks-rounding`,
 		`race-viz-course-start-finish`,
 		`race-viz-course-labels`,
 		`text-field": ["upcase", ["get", "name"]]`,
@@ -64,6 +66,28 @@ func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
 		`circle-radius`,
 		`fallbackTileEndpoint`,
 		`replaceTileEndpointInStyle`,
+	}
+
+	for _, snippet := range expectedSnippets {
+		assertContains(t, source, snippet)
+	}
+}
+
+func TestRaceVizBootstrapImplementsMarkRoundingDirectionLayer(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "js", "race-viz.js"))
+	if err != nil {
+		t.Fatalf("failed to read race viz bootstrap: %v", err)
+	}
+
+	source := string(data)
+	expectedSnippets := []string{
+		`DEFAULT_COURSE_ROUNDING_LAYER_ID`,
+		`roundingLayerID`,
+		`roundingPortColor`,
+		`roundingStarboardColor`,
+		`"port", courseStyle.roundingPortColor`,
+		`"starboard", courseStyle.roundingStarboardColor`,
+		`["match", ["get", "rounding"], ["port", "starboard"], true, false]`,
 	}
 
 	for _, snippet := range expectedSnippets {
