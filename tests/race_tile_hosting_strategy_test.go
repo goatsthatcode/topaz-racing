@@ -31,7 +31,7 @@ func TestRaceVizPublishesTileHostingContractForProductionBuilds(t *testing.T) {
 	assertContains(t, manifest, `"previewCommand": "martin --config tiles/martin-config"`)
 	assertContains(t, manifest, `"path": "combined_socal"`)
 	assertContains(t, manifest, `"source": "tiles/mbtiles/combined_socal.mbtiles"`)
-	assertContains(t, manifest, `"bounds": [-121, 31.5, -116, 35]`)
+	assertContains(t, manifest, `"bounds": [-121.82, 32.21, -117, 34.85]`)
 }
 
 func TestRaceVizPublishesDevelopmentTileHostingContract(t *testing.T) {

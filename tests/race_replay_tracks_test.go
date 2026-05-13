@@ -26,7 +26,7 @@ func TestRaceVizPublishesReplayTrackContract(t *testing.T) {
 		`data-race-viz-boats-state="idle"`,
 		`data-race-viz-replay-state="idle"`,
 		`data-race-viz-replay-time="0"`,
-		`data-race-viz-replay-speed="1"`,
+		`data-race-viz-replay-speed="60"`,
 		`data-race-viz-tracks-source="race-viz-tracks"`,
 		`data-race-viz-tracks-layer="race-viz-tracks"`,
 		`class="race-viz-sidebar" data-race-viz-sidebar`,

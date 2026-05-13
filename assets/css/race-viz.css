@@ -91,6 +91,18 @@
     backdrop-filter: blur(0.35rem);
 }
 
+.race-viz-boats-fallback {
+    position: absolute;
+    inset: auto 1rem 3.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 133, 133, 0.4);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: rgba(255, 220, 220, 0.95);
+    background: rgba(48, 12, 18, 0.86);
+    backdrop-filter: blur(0.35rem);
+}
+
 .race-viz-shell figcaption {
     display: flex;
     align-items: center;

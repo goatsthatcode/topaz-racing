@@ -13,10 +13,10 @@ func TestReferenceRaceCourseUsesStraightRouteSegment(t *testing.T) {
 	)
 
 	expectedCoordinates := []raceCoordinate{
-		{Lat: 33.9769, Lon: -118.4451},
-		{Lat: 32.475, Lon: -119.293},
-		{Lat: 33.4445, Lon: -118.6074},
-		{Lat: 33.4445, Lon: -118.6074},
+		{Lat: 33.95916, Lon: -118.46722},
+		{Lat: 33.91147, Lon: -118.4596},
+		{Lat: 32.43059, Lon: -119.12433},
+		{Lat: 33.48193, Lon: -118.61635},
 	}
 
 	actualCoordinates := expandCourseRouteCoordinates(course)
@@ -31,8 +31,10 @@ func TestReferenceRaceCourseUsesStraightRouteSegment(t *testing.T) {
 		}
 	}
 
-	if len(course.Elements[1].ControlPointsToNext) != 0 {
-		t.Fatalf("expected Cortez Bank leg to include no shaping points, got %d", len(course.Elements[1].ControlPointsToNext))
+	for i, element := range course.Elements {
+		if len(element.ControlPointsToNext) != 0 {
+			t.Fatalf("expected element %d (%s) to have no shaping points, got %d", i, element.ID, len(element.ControlPointsToNext))
+		}
 	}
 }
 

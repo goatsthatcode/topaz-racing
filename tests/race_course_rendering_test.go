@@ -58,7 +58,7 @@ func TestRaceVizBootstrapImplementsCourseMapLayers(t *testing.T) {
 		`race-viz-course-labels`,
 		`text-field": ["upcase", ["get", "name"]]`,
 		`fitBounds`,
-		`setMinZoom`,
+		`maxBounds`,
 		`line-dasharray`,
 		`line-blur`,
 		`circle-radius`,

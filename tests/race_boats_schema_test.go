@@ -2,7 +2,6 @@ package tests
 
 import (
 	"os"
-	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -84,17 +83,18 @@ func TestReferenceRaceBoatsIncludeSelfAndCompetitor(t *testing.T) {
 		&boats,
 	)
 
-	ids := make([]string, 0, len(boats.Boats))
+	hasSelf := false
 	hasCompetitor := false
 	for _, boat := range boats.Boats {
-		ids = append(ids, boat.ID)
-		if !boat.IsSelf {
+		if boat.IsSelf {
+			hasSelf = true
+		} else {
 			hasCompetitor = true
 		}
 	}
 
-	if !slices.Contains(ids, "topaz") {
-		t.Fatal("expected reference boats.json to include the self boat")
+	if !hasSelf {
+		t.Fatal("expected reference boats.json to include the self boat (isSelf: true)")
 	}
 	if !hasCompetitor {
 		t.Fatal("expected reference boats.json to include at least one competitor")

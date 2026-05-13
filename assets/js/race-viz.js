@@ -14,7 +14,7 @@ const DEFAULT_EVENTS_SOURCE_ID = "race-viz-events";
 const DEFAULT_EVENTS_LAYER_ID = "race-viz-events";
 const DEFAULT_COURSE_PALETTE = "signal-v1";
 const DEFAULT_MAP_FIT_PADDING = 48;
-const DEFAULT_MAP_FIT_MAX_ZOOM = 9.25;
+const DEFAULT_MAP_FIT_MAX_ZOOM = 7.0; // overridden per-component via data-race-viz-fit-max-zoom
 const COURSE_STYLE_PRESETS = {
   "signal-v1": {
     routeCasingColor: "rgba(4, 16, 24, 0.98)",
@@ -32,6 +32,15 @@ const COURSE_STYLE_PRESETS = {
     labelHaloColor: "rgba(6, 18, 28, 0.94)",
   },
 };
+
+function parseMapMaxBounds(value) {
+  if (!value) return null;
+  const parts = value.split(",").map(Number);
+  if (parts.length === 4 && parts.every((n) => !isNaN(n))) {
+    return parts; // [west, south, east, north]
+  }
+  return null;
+}
 
 function parseLayerList(value, fallback) {
   if (!value) {
@@ -67,6 +76,7 @@ function createRaceVizConfig(root) {
       servingMode: root.dataset.raceVizMapServingMode ?? "",
       prototypePage: root.dataset.raceVizMapPrototypePage ?? "",
       prototypeStyle: root.dataset.raceVizMapPrototypeStyle ?? "",
+      maxBounds: parseMapMaxBounds(root.dataset.raceVizMapMaxBounds ?? ""),
     },
     course: {
       url: resolveRaceVizURL(root.dataset.courseUrl ?? ""),
@@ -99,6 +109,7 @@ function createRaceVizConfig(root) {
     },
     boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
     eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
+    replaySpeed: parseInt(root.dataset.raceVizReplaySpeed ?? "60", 10) || 60,
   };
 }
 
@@ -146,7 +157,7 @@ function createRaceVizState(config) {
       currentTimeMs: 0,
       playing: false,
       started: false,
-      speed: 1,
+      speed: config.replaySpeed ?? 60,
       timeline: null,
       snapshot: null,
       animationFrameID: 0,
@@ -292,10 +303,33 @@ function setCourseState(root, stage, state, status, message = "") {
   renderCourseFallback(stage, message);
 }
 
-function setBoatsState(root, stage, state, status) {
+function renderBoatsFallback(stage, message) {
+  const courseLayer = getCourseLayer(stage);
+  if (!courseLayer) {
+    return;
+  }
+
+  let fallback = courseLayer.querySelector("[data-race-viz-boats-fallback]");
+  if (!message) {
+    fallback?.remove();
+    return;
+  }
+
+  if (!fallback) {
+    fallback = document.createElement("div");
+    fallback.className = "race-viz-boats-fallback";
+    fallback.dataset.raceVizBoatsFallback = "";
+    courseLayer.append(fallback);
+  }
+
+  fallback.textContent = message;
+}
+
+function setBoatsState(root, stage, state, status, message = "") {
   state.boats.status = status;
   root.dataset.raceVizBoatsState = status;
   stage.dataset.raceVizBoatsState = status;
+  renderBoatsFallback(stage, message);
 }
 
 function setEventsState(root, state, status) {
@@ -582,6 +616,7 @@ function createMapInstance(root, stage, state, canvas, variant) {
       container: canvas,
       style: variant.style,
       attributionControl: false,
+      maxBounds: state.config.map.maxBounds ?? variant.style.bounds ?? null,
     });
 
     let settled = false;
@@ -1251,7 +1286,7 @@ function renderTrackLayers(map, state) {
   });
 }
 
-function fitCourseBounds(map, courseFeatures) {
+function fitCourseBounds(map, courseFeatures, root) {
   const coordinates = [];
 
   for (const feature of courseFeatures.features) {
@@ -1283,14 +1318,13 @@ function fitCourseBounds(map, courseFeatures) {
     new window.maplibregl.LngLatBounds(coordinates[0], coordinates[0]),
   );
 
+  const fitMaxZoom = parseFloat(root?.dataset?.raceVizFitMaxZoom) || DEFAULT_MAP_FIT_MAX_ZOOM;
   map.fitBounds(bounds, {
     padding: DEFAULT_MAP_FIT_PADDING,
     duration: 0,
-    maxZoom: DEFAULT_MAP_FIT_MAX_ZOOM,
+    maxZoom: fitMaxZoom,
   });
 
-  const fittedZoom = map.getZoom();
-  map.setMinZoom(fittedZoom);
 }
 
 function emptyFeatureCollection() {
@@ -1793,7 +1827,7 @@ async function loadCourse(root, stage, state, mapReadyPromise) {
     const map = await mapReadyPromise;
     upsertCourseSource(map, state, courseFeatures);
     renderCourseLayers(map, state);
-    fitCourseBounds(map, courseFeatures);
+    fitCourseBounds(map, courseFeatures, root);
     setCourseState(root, stage, state, "ready");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Race course failed to load.";
@@ -1848,7 +1882,7 @@ async function loadBoats(root, stage, state, mapReadyPromise) {
     syncReplayControls(root, state);
   } catch (error) {
     stopReplayPlayback(state);
-    setBoatsState(root, stage, state, "error");
+    setBoatsState(root, stage, state, "error", "Could not load boat tracks.");
     setReplayClockState(root, state, "error");
     syncReplayClockDataset(root, state.replay);
     syncReplayControls(root, state);
