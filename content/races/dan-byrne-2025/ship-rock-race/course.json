@@ -1,6 +1,6 @@
 {
-  "id": "bishop-rock-race-course",
-  "name": "Bishop Rock Race",
+  "id": "ship-rock-race-course",
+  "name": "Ship Rock & Return",
   "elements": [
     {
       "id": "start",
@@ -19,19 +19,19 @@
       "rounding": "port"
     },
     {
-      "id": "cortez-bank",
+      "id": "ship-rock",
       "type": "mark",
-      "lat": 32.43059,
-      "lon": -119.12433,
-      "name": "Cortez Bank 2C",
+      "lat": 33.46266,
+      "lon": -118.49271,
+      "name": "Ship Rock",
       "rounding": "port"
     },
     {
       "id": "finish",
       "type": "finish_line",
-      "lat": 33.48193,
-      "lon": -118.61635,
-      "name": "Catalina West End Finish",
+      "lat": 33.77438,
+      "lon": -118.45427,
+      "name": "Palos Verdes Finish",
       "rounding": "none"
     }
   ]

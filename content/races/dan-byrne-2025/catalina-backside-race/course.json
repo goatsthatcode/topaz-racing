@@ -1,0 +1,38 @@
+{
+  "id": "catalina-to-port-course",
+  "name": "Catalina to Port",
+  "elements": [
+    {
+      "id": "start",
+      "type": "start_line",
+      "lat": 33.77290,
+      "lon": -118.44458,
+      "name": "Palos Verdes 10PV",
+      "rounding": "none"
+    },
+    {
+      "id": "catalina-west-end",
+      "type": "mark",
+      "lat": 33.47936,
+      "lon": -118.60740,
+      "name": "Catalina West End",
+      "rounding": "port"
+    },
+    {
+      "id": "catalina-south-coast",
+      "type": "waypoint",
+      "lat": 33.32500,
+      "lon": -118.46000,
+      "name": "Catalina South Coast",
+      "rounding": "none"
+    },
+    {
+      "id": "finish",
+      "type": "finish_line",
+      "lat": 33.29333,
+      "lon": -118.30721,
+      "name": "Catalina East End Finish",
+      "rounding": "none"
+    }
+  ]
+}

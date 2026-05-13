@@ -5,6 +5,10 @@
   "center": [-118.5, 33.5],
   "zoom": 8,
   "sources": {
+    "enc-overview": {
+      "type": "vector",
+      "tiles": ["http://127.0.0.1:3000/enc_overview/{z}/{x}/{y}"]
+    },
     "osm-tiles": {
       "type": "vector",
       "tiles": ["http://127.0.0.1:3000/combined_socal/{z}/{x}/{y}"]
@@ -16,95 +20,57 @@
       "type": "background",
       "paint": {"background-color": "rgba(46,33,87,1.0)"}
     },
-    {
-      "id": "coastline",
-      "type": "line",
-      "source": "osm-tiles",
-      "source-layer": "COALNE",
-      "paint": {"line-color": "#198EC8"}
-    },
-    {
-      "id": "landarea",
-      "type": "fill",
-      "source": "osm-tiles",
-      "source-layer": "LNDARE",
+
+    { "id": "deptharea-overview",      "type": "fill",   "source": "enc-overview", "source-layer": "DEPARE",  "maxzoom": 9,
+      "paint": { "fill-color": { "property": "DRVAL1", "stops": [[50,"rgba(43,55,86,0.75)"],[350,"rgba(53,50,90,0.60)"],[500,"rgba(31,45,96,0.45)"],[1000,"rgba(21,35,30,0.20)"]] } } },
+    { "id": "deptharea",               "type": "fill",   "source": "osm-tiles",    "source-layer": "DEPARE",  "minzoom": 9,
+      "paint": { "fill-color": { "property": "DRVAL1", "stops": [[50,"rgba(43,55,86,0.75)"],[350,"rgba(53,50,90,0.60)"],[500,"rgba(31,45,96,0.45)"],[1000,"rgba(21,35,30,0.20)"]] } } },
+
+    { "id": "landarea-overview",       "type": "fill",   "source": "enc-overview", "source-layer": "LNDARE",  "maxzoom": 9,
       "layout": {"visibility": "visible"},
-      "paint": {"fill-color": "#130f1f"}
-    },
-    {
-      "id": "deptharea",
-      "type": "fill",
-      "source": "osm-tiles",
-      "source-layer": "DEPARE",
-      "paint": {
-        "fill-color": {
-          "property": "DRVAL1",
-          "stops": [
-            [50, "rgba(43, 55, 86, 0.75)"],
-            [350, "rgba(53, 50, 90, 0.60)"],
-            [500, "rgba(31, 45, 96, 0.45)"],
-            [1000, "rgba(21, 35, 30, 0.20)"]
-          ]
-        }
-      }
-    },
-    {
-      "id": "depth_contour",
-      "type": "line",
-      "source": "osm-tiles",
-      "source-layer": "DEPCNT",
+      "paint": {"fill-color": "#130f1f"} },
+    { "id": "landarea",                "type": "fill",   "source": "osm-tiles",    "source-layer": "LNDARE",  "minzoom": 9,
       "layout": {"visibility": "visible"},
-      "paint": {
-        "line-color": {
-          "stops": [
-            [1, "rgba(180, 22, 194, 0.0)"],
-            [11, "rgba(180, 22, 194, 0.8)"]
-          ]
-        },
-        "line-width": 1.5,
-        "line-opacity": 0.3
-      }
-    },
-    {
-      "id": "rivers",
-      "type": "line",
-      "source": "osm-tiles",
-      "source-layer": "RIVERS",
-      "paint": {"line-color": "rgba(25, 18, 42, 1)"}
-    },
-    {
-      "id": "shipping-lane-divider",
-      "type": "fill",
-      "source": "osm-tiles",
-      "source-layer": "TSEZNE",
-      "paint": {"fill-color": "rgba(85, 45, 7, 0.06)"}
-    },
-    {
-      "id": "shipping-lane-boundary",
-      "type": "line",
-      "source": "osm-tiles",
-      "source-layer": "TSSBND",
-      "paint": {
-        "line-color": "rgba(126, 3, 5, 0.39)",
-        "line-dasharray": [2, 1],
-        "line-width": 0.8
-      }
-    },
-    {
-      "id": "shipping-lanes",
-      "type": "fill",
-      "source": "osm-tiles",
-      "source-layer": "TSSLPT",
+      "paint": {"fill-color": "#130f1f"} },
+
+    { "id": "coastline-overview",      "type": "line",   "source": "enc-overview", "source-layer": "COALNE",  "maxzoom": 9,
+      "paint": {"line-color": "#198EC8"} },
+    { "id": "coastline",               "type": "line",   "source": "osm-tiles",    "source-layer": "COALNE",  "minzoom": 9,
+      "paint": {"line-color": "#198EC8"} },
+
+    { "id": "depth-contour-overview",  "type": "line",   "source": "enc-overview", "source-layer": "DEPCNT",  "maxzoom": 9,
       "layout": {"visibility": "visible"},
-      "paint": {"fill-color": "rgba(52, 4, 7, 0.21)"}
-    },
-    {
-      "id": "precautionary-area",
-      "type": "fill",
-      "source": "osm-tiles",
-      "source-layer": "PRCARE",
-      "paint": {"fill-color": "rgba(97, 101, 78, 0.15)"}
-    }
+      "paint": { "line-color": {"stops": [[1,"rgba(180,22,194,0.0)"],[11,"rgba(180,22,194,0.8)"]]}, "line-width": 1.5, "line-opacity": 0.3 } },
+    { "id": "depth-contour",           "type": "line",   "source": "osm-tiles",    "source-layer": "DEPCNT",  "minzoom": 9,
+      "layout": {"visibility": "visible"},
+      "paint": { "line-color": {"stops": [[1,"rgba(180,22,194,0.0)"],[11,"rgba(180,22,194,0.8)"]]}, "line-width": 1.5, "line-opacity": 0.3 } },
+
+    { "id": "rivers-overview",         "type": "line",   "source": "enc-overview", "source-layer": "RIVERS",  "maxzoom": 9,
+      "paint": {"line-color": "rgba(25,18,42,1)"} },
+    { "id": "rivers",                  "type": "line",   "source": "osm-tiles",    "source-layer": "RIVERS",  "minzoom": 9,
+      "paint": {"line-color": "rgba(25,18,42,1)"} },
+
+    { "id": "shipping-lane-divider-overview", "type": "fill", "source": "enc-overview", "source-layer": "TSEZNE", "maxzoom": 9,
+      "paint": {"fill-color": "rgba(85,45,7,0.06)"} },
+    { "id": "shipping-lane-divider",          "type": "fill", "source": "osm-tiles",    "source-layer": "TSEZNE", "minzoom": 9,
+      "paint": {"fill-color": "rgba(85,45,7,0.06)"} },
+
+    { "id": "shipping-lane-boundary-overview", "type": "line", "source": "enc-overview", "source-layer": "TSSBND", "maxzoom": 9,
+      "paint": {"line-color": "rgba(126,3,5,0.39)", "line-dasharray": [2,1], "line-width": 0.8} },
+    { "id": "shipping-lane-boundary",          "type": "line", "source": "osm-tiles",    "source-layer": "TSSBND", "minzoom": 9,
+      "paint": {"line-color": "rgba(126,3,5,0.39)", "line-dasharray": [2,1], "line-width": 0.8} },
+
+    { "id": "shipping-lanes-overview", "type": "fill",   "source": "enc-overview", "source-layer": "TSSLPT",  "maxzoom": 9,
+      "layout": {"visibility": "visible"},
+      "paint": {"fill-color": "rgba(52,4,7,0.21)"} },
+    { "id": "shipping-lanes",          "type": "fill",   "source": "osm-tiles",    "source-layer": "TSSLPT",  "minzoom": 9,
+      "layout": {"visibility": "visible"},
+      "paint": {"fill-color": "rgba(52,4,7,0.21)"} },
+
+    { "id": "precautionary-area-overview", "type": "fill", "source": "enc-overview", "source-layer": "PRCARE", "maxzoom": 9,
+      "paint": {"fill-color": "rgba(97,101,78,0.15)"} },
+    { "id": "precautionary-area",          "type": "fill", "source": "osm-tiles",    "source-layer": "PRCARE", "minzoom": 9,
+      "paint": {"fill-color": "rgba(97,101,78,0.15)"} }
   ],
   "id": "efszp0r"
 }

@@ -1,11 +1,11 @@
-study SPEC.md
-study TASKS.md
+study GAPS.md
 
 pick the most important task and implement it.
 
 IMPORTANT:
 - always write unit or integration tests (whichever you think is best) for new features.
-- search docs/ for more information regarding a feature or task
+- search docs/ for more information regarding a feature or task if needed.
+- search SPEC.md as well if needed.
 - a task is not finished until all unit tests pass.
 - when a task is finished add the files and tests to git and commit the changes.
 - make sure all unit tests are not in the top level and saved someplace close to themodules being tested.

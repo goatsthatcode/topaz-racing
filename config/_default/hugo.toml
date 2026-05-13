@@ -106,6 +106,9 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
             servingMode = 'external-static-vector-host'
             previewCommand = 'martin --config tiles/martin-config'
             defaultSet = 'combined_socal'
+            overviewSource = 'enc_combined'
+            detailSource = 'combined_socal'
+            detailMinZoom = 10
 
             [[params.raceViz.tiles.sets]]
                 id = 'combined_socal'
@@ -113,8 +116,8 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
                 path = 'combined_socal'
                 region = 'southern-california'
                 source = 'tiles/mbtiles/combined_socal.mbtiles'
-                bounds = [-121.0, 31.5, -116.0, 35.0]
-                center = [-118.5, 33.5]
+                bounds = [-121.82, 32.21, -117.0, 34.85]
+                center = [-119.4, 33.5]
                 zoom = 8
 
     ## Typography settings

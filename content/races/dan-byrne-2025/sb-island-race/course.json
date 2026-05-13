@@ -1,6 +1,6 @@
 {
-  "id": "bishop-rock-race-course",
-  "name": "Bishop Rock Race",
+  "id": "sb-island-race-course",
+  "name": "Santa Barbara Island Race",
   "elements": [
     {
       "id": "start",
@@ -11,19 +11,11 @@
       "rounding": "none"
     },
     {
-      "id": "el-segundo",
+      "id": "sb-island",
       "type": "mark",
-      "lat": 33.91147,
-      "lon": -118.45960,
-      "name": "El Segundo 2ES",
-      "rounding": "port"
-    },
-    {
-      "id": "cortez-bank",
-      "type": "mark",
-      "lat": 32.43059,
-      "lon": -119.12433,
-      "name": "Cortez Bank 2C",
+      "lat": 33.47500,
+      "lon": -119.03300,
+      "name": "Santa Barbara Island",
       "rounding": "port"
     },
     {

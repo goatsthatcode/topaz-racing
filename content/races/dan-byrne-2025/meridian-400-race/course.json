@@ -1,29 +1,29 @@
 {
-  "id": "bishop-rock-race-course",
-  "name": "Bishop Rock Race",
+  "id": "meridian-400-course",
+  "name": "Meridian 400",
   "elements": [
     {
       "id": "start",
       "type": "start_line",
-      "lat": 33.95916,
-      "lon": -118.46722,
-      "name": "MDR Start",
+      "lat": 34.14104,
+      "lon": -119.25085,
+      "name": "Channel Islands Start",
       "rounding": "none"
     },
     {
-      "id": "el-segundo",
+      "id": "meridian-waypoint",
       "type": "mark",
-      "lat": 33.91147,
-      "lon": -118.45960,
-      "name": "El Segundo 2ES",
+      "lat": 32.72300,
+      "lon": -121.85900,
+      "name": "122° Meridian",
       "rounding": "port"
     },
     {
-      "id": "cortez-bank",
+      "id": "southern-waypoint",
       "type": "mark",
-      "lat": 32.43059,
-      "lon": -119.12433,
-      "name": "Cortez Bank 2C",
+      "lat": 31.63850,
+      "lon": -120.68600,
+      "name": "Southern Turning Mark",
       "rounding": "port"
     },
     {

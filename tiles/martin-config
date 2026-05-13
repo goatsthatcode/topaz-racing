@@ -1,6 +1,7 @@
 web_ui: enableforall
 mbtiles:
   sources:
+    enc_combined: mbtiles/enc_combined.mbtiles
     combined_socal: mbtiles/combined_socal.mbtiles
     socal_north: mbtiles/socal_north.mbtiles
     socal_south: mbtiles/socal_south.mbtiles

@@ -35,9 +35,15 @@
 {{- end -}}
 
 {{- $styleTemplate := resources.Get "race-viz/map/style.json.tmpl" -}}
+{{- $overviewSource := $tileConfig.overviewSource | default "enc_combined" -}}
+{{- $detailSource := $tileConfig.detailSource | default "combined_socal" -}}
+{{- $detailMinZoom := $tileConfig.detailMinZoom | default 9 -}}
 {{- $styleResource := $styleTemplate | resources.ExecuteAsTemplate "race-viz/map-style.json" (dict
     "tileEndpoint" $tileEndpoint
     "tileSet" $defaultTileSet
+    "overviewSource" $overviewSource
+    "detailSource" $detailSource
+    "detailMinZoom" $detailMinZoom
 ) -}}
 {{- $tileManifestTemplate := resources.Get "race-viz/map/tile-manifest.json.tmpl" -}}
 {{- $tileManifestResource := $tileManifestTemplate | resources.ExecuteAsTemplate "race-viz/tile-manifest.json" (dict

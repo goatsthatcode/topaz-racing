@@ -452,11 +452,25 @@ Acceptance criteria:
 - a GPX file from a Garmin or phone can be converted to `boats.json` format without hand-authoring track points
 - multiple boats can be accumulated into one `boats.json` by running the tool once per boat with `--merge`
 
+### Task 9.2
+Implement Jibeset multi-boat track import tool.
+
+- [x] Done on 2026-05-13: implemented `jibesetimport` package (`jibesetimport/parser.go`) with `ParseFile`, `ConvertTrack`, and `FilterBySailNumbers` functions, added CLI at `cmd/jibeset-import/main.go`, and covered parsing and conversion cases in `jibesetimport/parser_test.go`. Used to populate `boats.json` for all four Dan Byrne 2025 race pages.
+
+Deliverables:
+- `jibesetimport` Go package with `ParseFile`, `ConvertTrack`, and `FilterBySailNumbers` functions
+- `cmd/jibeset-import` CLI accepting `--race-date`, `--sail-numbers`, `--interval`, `--color`, and `--output` flags
+- Handles Jibeset `.txt` export format with `\r`-separated records and multi-boat data
+- Interval downsampling and per-boat color/name overrides
+
+Acceptance criteria:
+- a Jibeset `.txt` export can be converted to `boats.json` with multiple boats without hand-authoring track points
+- boats can be filtered by sail number and down-sampled for file-size efficiency
+
 ## Deferred Backlog
 These are explicitly out of scope for initial implementation, but should remain visible for future work:
 
 - live race mode with periodic refresh
-- import/conversion tooling for Jibeset and Garmin Connect export formats
 - auto-routing around land/islands
 - weather overlays
 - exclusion zone rendering and logic

@@ -7,4 +7,6 @@ resources/_gen/
 *.old
 *.swp
 coverage.out
-gpx-import
+/gpx-import
+/jibeset-import
+*.mbtiles

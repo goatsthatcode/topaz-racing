@@ -12,6 +12,8 @@
 {{- $boats := $targetPage.Resources.GetMatch "boats.json" -}}
 {{- $events := $targetPage.Resources.GetMatch "events.json" -}}
 {{- $mode := or (.Get "mode") "replay" -}}
+{{- $fitMaxZoom := .Get "fitMaxZoom" -}}
+{{- $mapMaxBounds := .Get "mapMaxBounds" -}}
 {{- if not $course -}}
     {{- errorf "race-viz shortcode requires course.json in %s" $targetPage.File.Path -}}
 {{- end -}}
@@ -49,7 +51,13 @@
     data-race-viz-replay-state="idle"
     data-race-viz-events-state="idle"
     data-race-viz-replay-time="0"
-    data-race-viz-replay-speed="1"
+    data-race-viz-replay-speed="60"
+    {{- with $fitMaxZoom }}
+    data-race-viz-fit-max-zoom="{{ . }}"
+    {{- end }}
+    {{- with $mapMaxBounds }}
+    data-race-viz-map-max-bounds="{{ . }}"
+    {{- end }}
     data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
     data-race-viz-active-layers="{{ delimit $activeLayers " " }}"
     data-race-viz-map-style-url="{{ $mapFoundation.stylePath }}"
@@ -99,10 +107,11 @@
                     <label class="race-viz-speed-picker">
                         <span>Speed</span>
                         <select class="race-viz-speed-select" data-race-viz-replay-speed-select disabled>
-                            <option value="0.5">0.5x</option>
-                            <option value="1" selected>1x</option>
-                            <option value="4">4x</option>
-                            <option value="8">8x</option>
+                            <option value="30">30x</option>
+                            <option value="60" selected>60x</option>
+                            <option value="120">120x</option>
+                            <option value="300">300x</option>
+                            <option value="600">600x</option>
                         </select>
                     </label>
                 </div>
