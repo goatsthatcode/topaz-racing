@@ -209,6 +209,14 @@ func assertContains(t *testing.T, text, snippet string) {
 	}
 }
 
+func assertNotContains(t *testing.T, text, snippet string) {
+	t.Helper()
+
+	if strings.Contains(text, snippet) {
+		t.Fatalf("expected content NOT to include %q", snippet)
+	}
+}
+
 func assertStringSet(t *testing.T, actual, expected []string) {
 	t.Helper()
 

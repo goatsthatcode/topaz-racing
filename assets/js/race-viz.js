@@ -364,12 +364,13 @@ function syncReplayClockDataset(root, replay) {
   root.dataset.raceVizReplayDuration = String(replay.durationMs ?? 0);
 }
 
-function formatReplayClockLabel(timestampMs) {
-  if (!timestampMs) {
-    return "00:00:00";
-  }
-
-  return new Date(timestampMs).toISOString().slice(11, 19);
+function formatElapsedLabel(elapsedMs) {
+  const ms = elapsedMs > 0 ? elapsedMs : 0;
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `+${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function syncReplayControls(root, state) {
@@ -395,15 +396,17 @@ function syncReplayControls(root, state) {
   }
 
   if (controls.currentLabel) {
-    controls.currentLabel.textContent = formatReplayClockLabel(state.replay.currentTimeMs);
+    controls.currentLabel.textContent = formatElapsedLabel(
+      (state.replay.currentTimeMs ?? 0) - (state.replay.startTimeMs ?? 0),
+    );
   }
 
   if (controls.startLabel) {
-    controls.startLabel.textContent = formatReplayClockLabel(state.replay.startTimeMs);
+    controls.startLabel.textContent = formatElapsedLabel(0);
   }
 
   if (controls.endLabel) {
-    controls.endLabel.textContent = formatReplayClockLabel(state.replay.endTimeMs);
+    controls.endLabel.textContent = formatElapsedLabel(state.replay.durationMs ?? 0);
   }
 
   if (controls.timeline) {
@@ -1782,7 +1785,7 @@ function attachBoatMarkerHoverInteractions(map, state) {
     if (props.name) {
       parts.push(`<strong class="race-viz-hover-name">${props.name}</strong>`);
     }
-    const timeLabel = formatReplayClockLabel(state.replay.currentTimeMs);
+    const timeLabel = formatElapsedLabel(state.replay.currentTimeMs - (state.replay.startTimeMs ?? 0));
     parts.push(`<time class="race-viz-hover-time">${timeLabel}</time>`);
 
     state.hover.activeTooltip = new window.maplibregl.Popup({
@@ -1830,7 +1833,7 @@ function attachTrackHoverInteractions(map, state) {
       const boat = state.replay.timeline?.boats?.find((b) => b.id === props.id);
       if (boat) {
         const timeMs = interpolateTimeFromPosition(boat, lngLat);
-        parts.push(`<time class="race-viz-hover-time">${formatReplayClockLabel(timeMs)}</time>`);
+        parts.push(`<time class="race-viz-hover-time">${formatElapsedLabel(timeMs - (state.replay.startTimeMs ?? 0))}</time>`);
       }
 
       const html = `<div class="race-viz-hover-tooltip-content">${parts.join("")}</div>`;

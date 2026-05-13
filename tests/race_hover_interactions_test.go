@@ -40,7 +40,7 @@ func TestRaceVizBootstrapImplementsBoatMarkerHoverInteractions(t *testing.T) {
 		`style.cursor = "pointer"`,
 		`race-viz-hover-name`,
 		`race-viz-hover-time`,
-		`formatReplayClockLabel(state.replay.currentTimeMs)`,
+		`formatElapsedLabel(state.replay.currentTimeMs - (state.replay.startTimeMs ?? 0))`,
 		`race-viz-hover-tooltip`,
 		`window.maplibregl.Popup`,
 		`state.hover.activeTooltip`,

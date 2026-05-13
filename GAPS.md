@@ -90,15 +90,9 @@ A `mapMinZoom` shortcode parameter (mirroring the existing `fitMaxZoom` and `map
 
 ## UX Issues
 
-### UX-1: Timeline labels show time-of-day (HH:MM:SS UTC), not elapsed race time
+### ~~UX-1: Timeline labels show time-of-day (HH:MM:SS UTC), not elapsed race time~~
 
-**File:** `assets/js/race-viz.js` — `formatReplayClockLabel` (line 338)
-
-The replay clock and timeline scale labels format timestamps as UTC time-of-day (`"08:00:00"` to `"10:28:00"`). For the Bishop Rock race these happen to read intuitively because the start and end are on the same day's AM hours. But for any race that spans midnight — including the 26-hour Bishop Rock race itself (which runs from `2025-02-11T08:00:00Z` to `2025-02-12T10:28:00Z`) — the start label correctly shows `08:00:00` and the end label correctly shows `10:28:00`, but a viewer cannot tell from the labels alone that these are on different calendar days. The elapsed replay time is also not shown.
-
-Suggested alternatives:
-- Display elapsed time from race start (e.g., `+00:00:00` to `+26:28:00`), or
-- Show a date prefix when the race crosses midnight (e.g., `Feb 12 10:28`).
+- [x] Resolved on 2026-05-13: Replaced `formatReplayClockLabel` with `formatElapsedLabel(elapsedMs)` which formats elapsed milliseconds from race start as `+HH:MM:SS`. `syncReplayControls` now feeds `currentTimeMs - startTimeMs` for the current label, `durationMs` for the end label, and `0` for the start label. Both hover tooltips (boat marker and track hover) also use elapsed time. Tests added in `tests/race_elapsed_label_test.go`.
 
 ---
 
