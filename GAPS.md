@@ -18,13 +18,9 @@ Gaps between the spec/tasks and the current implementation, plus bugs discovered
 
 ---
 
-### BUG-3: Empty `name` string on `south-of-channel-islands` element fails schema validation
+### ~~BUG-3: Empty `name` string on `south-of-channel-islands` element fails schema validation~~
 
-**File:** `content/races/dan-byrne-2025/meridian-400-race/course.json`
-
-The `south-of-channel-islands` element has `"name": ""`. The schema defines `name.minLength: 1` (if the field is present, it must contain at least one character). An empty string violates this constraint.
-
-**Fix:** Either omit the `name` field entirely (it is optional in the schema), or remove the `minLength: 1` constraint from the `name` property to allow intentionally unnamed elements, or lower it to `"minLength": 0"`.
+- [x] Resolved on 2026-05-13: The `south-of-channel-islands` element was removed during a course redesign of `meridian-400-race/course.json`. The current course no longer contains any element with an empty `name` string, so there is nothing to violate the `minLength: 1` constraint. All course files pass schema validation.
 
 ---
 
@@ -54,11 +50,9 @@ The `south-of-channel-islands` element has `"name": ""`. The schema defines `nam
 
 ---
 
-### GAP-3: ~~Four race pages are course-only~~ — resolved; one outstanding data quality issue remains
+### ~~GAP-3: Four race pages are course-only~~
 
-**Status:** Largely resolved as of 2026-05-13. All four races (`catalina-backside-race`, `meridian-400-race`, `ship-rock-race`, `sb-island-race`) now have `boats.json` and use `mode="replay"`. The Jibeset import tool (`jibesetimport` package + `cmd/jibeset-import` CLI) was used to populate track data.
-
-**Remaining issue:** None of the four newly populated races have an `events.json`. Replay works end-to-end, but the event annotation layer is untested beyond Bishop Rock. At minimum one of the new race pages should gain an `events.json` to exercise the full path.
+- [x] Resolved on 2026-05-13: All four races (`catalina-backside-race`, `meridian-400-race`, `ship-rock-race`, `sb-island-race`) have `boats.json` and use `mode="replay"`. The Jibeset import tool was used to populate track data. `catalina-backside-race` now also has `events.json` with three events covering `mark_rounding`, `gybe`, and `sail_change` types, exercising the full event annotation path on a non-reference race. Test added: `TestCatalinaBacksideRaceEventsSatisfyV1Contract` in `tests/race_events_schema_test.go`.
 
 ---
 
@@ -140,11 +134,9 @@ The reference `events.json` has a single `gybe` event. The schema supports `gybe
 
 ---
 
-### MINOR-5: Jibeset import tool implemented but not recorded in TASKS.md
+### ~~MINOR-5: Jibeset import tool implemented but not recorded in TASKS.md~~
 
-**Files:** `cmd/jibeset-import/main.go`, `jibesetimport/parser.go`, `jibesetimport/parser_test.go`
-
-The Jibeset multi-boat track import tool is fully implemented and used to populate `boats.json` for the new race pages. It is more capable than the GPX tool (multi-boat, sail-number filtering, race-date selection, interval downsampling, per-boat color/name overrides). However, TASKS.md only documents Task 9.1 (GPX import). The Jibeset tool appears in the deferred backlog as "import/conversion tooling for Jibeset and Garmin Connect export formats" but is already done. It should be added as a completed task (Task 9.2 or similar) so the backlog stays accurate and a future contributor knows the tool exists.
+- [x] Resolved on 2026-05-13: Added as Task 9.2 in `TASKS.md` with full deliverables and acceptance criteria. The `jibesetimport` package and `cmd/jibeset-import` CLI are now documented alongside Task 9.1 (GPX import). Both are marked complete.
 
 ---
 

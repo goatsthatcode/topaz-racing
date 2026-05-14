@@ -1,0 +1,31 @@
+{
+  "events": [
+    {
+      "id": "catalina-west-end-rounding",
+      "type": "mark_rounding",
+      "time": "2025-04-12T15:59:20Z",
+      "lat": 33.47852,
+      "lon": -118.60873,
+      "label": "Catalina West End",
+      "description": "Topaz rounds the Catalina West End mark to port and begins the backside reach along the island's south shore."
+    },
+    {
+      "id": "gybe-to-port",
+      "type": "gybe",
+      "time": "2025-04-12T16:29:46Z",
+      "lat": 33.43762,
+      "lon": -118.59856,
+      "label": "Gybe onto port",
+      "description": "Topaz gybes onto port tack to square away for the downwind run along the south coast toward the east end."
+    },
+    {
+      "id": "kite-douse",
+      "type": "sail_change",
+      "time": "2025-04-12T17:38:50Z",
+      "lat": 33.34722,
+      "lon": -118.50986,
+      "label": "Spinnaker douse",
+      "description": "Wind shifts and lifts; Topaz douses the kite and hardens up on a reach for the final approach to the finish."
+    }
+  ]
+}
