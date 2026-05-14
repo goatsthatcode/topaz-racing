@@ -145,10 +145,11 @@
         </section>
     </aside>
     <figcaption>
-        {{- if $raceParam -}}
-            Race visualization embed for <code>{{ $raceID }}</code>.
+        {{- with $targetPage.Title -}}
+            {{- . -}}
+            {{- with $targetPage.Date -}}{{- if not .IsZero }} &mdash; {{ .Format "January 2, 2006" }}{{ end -}}{{- end -}}
         {{- else -}}
-            Race visualization embed for this race page.
+            Race visualization for <code>{{ $raceID }}</code>.
         {{- end -}}
     </figcaption>
 </figure>

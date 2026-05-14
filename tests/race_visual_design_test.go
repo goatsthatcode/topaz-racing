@@ -201,3 +201,46 @@ func TestDesign4ShellBorderRadius(t *testing.T) {
 	// 0.5rem shell border-radius is sharper than 1rem for embedded instances.
 	assertContains(t, string(data), "border-radius: 0.5rem")
 }
+
+// ─── DESIGN-3: Sidebar section structure ─────────────────────────────────────
+
+func TestDesign3SidebarPanelReducedPaddingInWideMode(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// In wide mode, panel horizontal padding is removed so the sidebar
+	// column's own padding handles spacing — instrument-panel density.
+	assertContains(t, string(data), "padding: 0.65rem 0")
+}
+
+func TestDesign3SidebarFirstPanelNoTopBorder(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	text := string(data)
+	// The first panel in the sidebar has its top separator removed so it
+	// butts directly against the sidebar top without a redundant hairline.
+	assertContains(t, text, ".race-viz-panel:first-child")
+	assertContains(t, text, "border-top: none")
+}
+
+func TestDesign3SidebarTitleSmallerInWideMode(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// 0.74rem is tighter than the default 0.82rem — better density in 19rem column.
+	assertContains(t, string(data), "font-size: 0.74rem")
+}
+
+func TestDesign3ReplayTimeProminentInWideMode(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// The replay clock is the dominant readout in the narrow sidebar column —
+	// 1rem makes it read like a navigation instrument, not a secondary label.
+	assertContains(t, string(data), "font-size: 1rem")
+}

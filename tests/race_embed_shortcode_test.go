@@ -8,6 +8,39 @@ import (
 	"testing"
 )
 
+func TestRaceVizShortcodeFigcaptionShowsRaceNameAndDate(t *testing.T) {
+	outputDir := t.TempDir()
+
+	cmd := exec.Command("hugo", "--destination", outputDir)
+	cmd.Env = os.Environ()
+	cmd.Dir = repoRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("hugo build failed: %v\n%s", err, output)
+	}
+
+	pagePath := filepath.Join(outputDir, "races", "dan-byrne-2025", "bishop-rock-race", "index.html")
+	htmlBytes, err := os.ReadFile(pagePath)
+	if err != nil {
+		t.Fatalf("failed to read rendered race page: %v", err)
+	}
+
+	html := string(htmlBytes)
+	// Figcaption should show the race title, not the generic bundle-path fallback.
+	if !strings.Contains(html, "Bishop Rock Race") {
+		t.Fatal("figcaption is missing the race title \"Bishop Rock Race\"")
+	}
+	// The date from front matter (2025-02-11) should appear formatted.
+	if !strings.Contains(html, "February 11, 2025") {
+		t.Fatal("figcaption is missing the formatted race date \"February 11, 2025\"")
+	}
+	// The old generic fallback text should no longer appear.
+	if strings.Contains(html, "Race visualization embed for") {
+		t.Fatal("figcaption still contains old generic fallback text")
+	}
+}
+
 func TestRaceVizShortcodeBuildsReferenceRacePage(t *testing.T) {
 	outputDir := t.TempDir()
 

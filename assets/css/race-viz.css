@@ -506,6 +506,29 @@
         grid-area: caption;
     }
 
+    /* Panels become flat labeled sections: no horizontal padding (the sidebar
+     * column's own padding provides spacing) and a tighter vertical rhythm. */
+    .race-viz-sidebar .race-viz-panel {
+        padding: 0.65rem 0;
+    }
+
+    /* The leading section needs no top separator — the sidebar border-left
+     * already provides a visual anchor. */
+    .race-viz-sidebar .race-viz-panel:first-child {
+        border-top: none;
+    }
+
+    /* Sidebar section titles shrink to instrument-panel density in the narrow column. */
+    .race-viz-sidebar .race-viz-sidebar-title {
+        font-size: 0.74rem;
+    }
+
+    /* The replay clock becomes the dominant readout in the sidebar. */
+    .race-viz-sidebar .race-viz-replay-time {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+    }
+
     /* Sidebar no longer adds vertical footprint, so the stage can use a
      * shorter min-height without shrinking the map on race pages. */
     [data-race-page] .race-viz-stage {

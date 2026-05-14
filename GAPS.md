@@ -118,7 +118,9 @@ For V2: filter event visibility in `renderReplayFrame` so annotations appear onl
 
 ---
 
-### MINOR-3: Generic figcaption text provides no race context
+### ~~MINOR-3: Generic figcaption text provides no race context~~
+
+- [x] Resolved on 2026-05-13: Updated the figcaption in `layouts/shortcodes/race-viz.html` to use `$targetPage.Title` and `$targetPage.Date` formatted as "Month D, YYYY". The Bishop Rock Race page now renders "Bishop Rock Race — February 11, 2025" instead of the generic bundle-path string. When a page has no title, it falls back to `Race visualization for <race-id>`. Test added in `tests/race_embed_shortcode_test.go` (`TestRaceVizShortcodeFigcaptionShowsRaceNameAndDate`).
 
 **File:** `layouts/shortcodes/race-viz.html` (lines 141–147)
 
@@ -209,16 +211,9 @@ On a race page (where `.race-viz-shell` is already edge-to-edge), the 19rem side
 
 ---
 
-### DESIGN-3: Sidebar section structure — sections over floating cards
+### ~~DESIGN-3: Sidebar section structure — sections over floating cards~~
 
-**Related to DESIGN-1 and DESIGN-2.** In a 19rem sidebar column, the current panel "card" metaphor (gradient background, border-radius, full border) produces cramped floating boxes that feel generic. A narrow column reads better as labeled sections with hairline dividers — a chart instrument panel, not a dashboard widget stack.
-
-**Proposed:** When in side-by-side mode, panels become flat sections:
-- No `border-radius`, no card background — the sidebar column background provides the fill
-- Section separation via `border-top: 1px solid rgba(126, 245, 236, 0.09)` (first section has no top border)
-- `padding: 0.65rem 0` (remove horizontal padding — the sidebar column's own padding handles it)
-- The `REPLAY` / `FLEET` sidebar titles drop to `font-size: 0.74rem` and `letter-spacing: 0.1em` (current 0.16em is wide for a narrow column)
-- The replay clock readout (`race-viz-replay-time`) becomes the most prominent element in the sidebar: `font-size: 1rem; letter-spacing: 0.1em` — a single number in a tight column reads like a navigation instrument
+- [x] Resolved on 2026-05-13: In the `@media (min-width: 56rem)` block, panels inside the sidebar now have horizontal padding removed (`padding: 0.65rem 0`) so the column's own padding provides spacing. The first panel's top border is stripped (`border-top: none`) to avoid a redundant hairline. Sidebar section titles shrink to `font-size: 0.74rem` for instrument-panel density. The replay clock readout (`race-viz-replay-time`) grows to `font-size: 1rem` with tighter `letter-spacing: 0.1em` so it reads as the dominant navigation instrument in the narrow column. Tests added in `tests/race_visual_design_test.go`.
 
 ---
 
