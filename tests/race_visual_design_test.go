@@ -5,6 +5,98 @@ import (
 	"testing"
 )
 
+// ─── DESIGN-2: Flat/crisp container style ────────────────────────────────────
+
+func TestDesign2ShellHasFlatBackground(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	text := string(data)
+	// Shell uses a single flat fill instead of layered radial+linear gradients.
+	assertContains(t, text, "background: rgba(6, 14, 25, 0.97)")
+	// No multi-layer gradient stack on the shell.
+	assertNotContains(t, text, "radial-gradient(circle at top, rgba(64, 224, 208")
+}
+
+func TestDesign2ShellHasNoBoxShadow(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// The large drop-shadow glow beneath the shell is removed.
+	assertNotContains(t, string(data), "box-shadow: 0 1.25rem 3rem")
+}
+
+func TestDesign2PanelHasTransparentBackground(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// Panels are flat sections — the sidebar column background provides the fill.
+	assertContains(t, string(data), "background: transparent")
+}
+
+func TestDesign2PanelHasTopOnlyHairlineBorder(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	text := string(data)
+	// Panels are separated by a subtle top hairline, not a full card border.
+	assertContains(t, text, "border-top: 1px solid rgba(126, 245, 236, 0.09)")
+	// The full card border and border-radius are removed from panels.
+	assertNotContains(t, text, "border-radius: 0.85rem")
+}
+
+func TestDesign2ButtonHasFlatBackground(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	text := string(data)
+	// Buttons use a flat dark fill instead of the gradient pair.
+	assertContains(t, text, "background: rgba(8, 20, 34, 0.95)")
+	// The gradient background on buttons is removed.
+	assertNotContains(t, text, "linear-gradient(180deg, rgba(13, 32, 46")
+}
+
+func TestDesign2ButtonHasNoInnerGlow(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// The inset glow ring on buttons is removed.
+	assertNotContains(t, string(data), "inset 0 0 0 1px rgba(255, 255, 255, 0.04)")
+}
+
+func TestDesign2FigcaptionDotHasNoGlowRing(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "race-viz.css"))
+	if err != nil {
+		t.Fatalf("failed to read race-viz.css: %v", err)
+	}
+	// The glow bloom around the caption dot is removed — radial fill alone suffices.
+	assertNotContains(t, string(data), "box-shadow: 0 0 0.75rem rgba(126, 245, 236, 0.4)")
+}
+
+func TestDesign2SiteHeaderHasNoBoxShadow(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "custom.css"))
+	if err != nil {
+		t.Fatalf("failed to read custom.css: %v", err)
+	}
+	// Site header border-bottom is enough; glow bloom removed.
+	assertNotContains(t, string(data), "box-shadow: 0 0.5rem 2rem var(--site-cyan-dim)")
+}
+
+func TestDesign2RacePageHeaderHasNoGradient(t *testing.T) {
+	data, err := os.ReadFile(repoFile("assets", "css", "custom.css"))
+	if err != nil {
+		t.Fatalf("failed to read custom.css: %v", err)
+	}
+	// Race page header gradient is removed — flat background is more editorial.
+	assertNotContains(t, string(data), "rgba(126, 245, 236, 0.04)")
+}
+
 // ─── DESIGN-1: Side-by-side layout ───────────────────────────────────────────
 
 func TestSideBySideLayoutMediaQueryPresent(t *testing.T) {

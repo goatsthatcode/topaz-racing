@@ -196,7 +196,9 @@ On a race page (where `.race-viz-shell` is already edge-to-edge), the 19rem side
 
 ---
 
-### DESIGN-2: Replace glow aesthetic with flat/crisp container style
+### ~~DESIGN-2: Replace glow aesthetic with flat/crisp container style~~
+
+- [x] Resolved on 2026-05-13: Stripped all glow/gradient treatments from containers. `.race-viz-shell` background replaced with a single flat fill (`rgba(6, 14, 25, 0.97)`); its `box-shadow` drop-shadow removed. `.race-viz-panel` changed to `background: transparent` with a top-only hairline border (`border-top: 1px solid rgba(126, 245, 236, 0.09)`); card `border-radius` removed. `.race-viz-button` replaced gradient background with flat `rgba(8, 20, 34, 0.95)`; inset glow ring removed. `figcaption::before` glow `box-shadow` removed. `body > header` (custom.css) `box-shadow` removed. `.race-page-header` gradient (custom.css) removed. Map-layer, event-popup, and hover-tooltip styles left untouched. Tests added in `tests/race_visual_design_test.go`.
 
 **Files:** `assets/css/race-viz.css`, `assets/css/custom.css`
 

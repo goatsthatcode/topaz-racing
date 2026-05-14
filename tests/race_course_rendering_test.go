@@ -171,7 +171,6 @@ func TestRaceVizStylesDefineEditorialCourseFrame(t *testing.T) {
 		`--race-viz-frame`,
 		`--race-viz-stage-outline`,
 		`--race-viz-caption-accent`,
-		`linear-gradient(125deg`,
 		`box-shadow:`,
 		`pointer-events: none;`,
 		`.race-viz-shell figcaption::before`,

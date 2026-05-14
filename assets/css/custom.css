@@ -33,21 +33,9 @@
         --mid: #3a5470;
     }
 
-    /* Retro-digital gradient accent: a faint cyan gradient below the site header
-     * ties it to the race-viz shell's glow treatment. */
+    /* Site header: hairline border is sufficient — no glow bloom. */
     body > header {
         border-bottom: 1px solid var(--site-border-subtle);
-        box-shadow: 0 0.5rem 2rem var(--site-cyan-dim);
-    }
-
-    /* Race page header: receive the same gradient that the race-viz shell uses
-     * so the prose and visualization share a continuous visual ground. */
-    .race-page-header {
-        background: linear-gradient(
-            180deg,
-            transparent,
-            rgba(126, 245, 236, 0.04)
-        );
     }
 
     /* Retro-digital gradient accent line on article headings. The gradient runs

@@ -7,11 +7,7 @@
     padding: 1rem;
     border: 1px solid var(--race-viz-frame);
     border-radius: 0.5rem;
-    background:
-        linear-gradient(125deg, rgba(126, 245, 236, 0.06), transparent 34%),
-        linear-gradient(180deg, rgba(8, 17, 31, 0.94), rgba(3, 9, 19, 0.98)),
-        radial-gradient(circle at top, rgba(64, 224, 208, 0.14), transparent 45%);
-    box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.24);
+    background: rgba(6, 14, 25, 0.97);
 }
 
 .race-viz-stage {
@@ -122,11 +118,9 @@
     display: grid;
     gap: 0.75rem;
     padding: 0.9rem 1rem;
-    border: 1px solid rgba(126, 245, 236, 0.18);
-    border-radius: 0.85rem;
-    background:
-        linear-gradient(180deg, rgba(7, 16, 29, 0.82), rgba(4, 10, 19, 0.94)),
-        radial-gradient(circle at top left, rgba(126, 245, 236, 0.08), transparent 45%);
+    border: none;
+    border-top: 1px solid rgba(126, 245, 236, 0.09);
+    background: transparent;
 }
 
 .race-viz-panel-header {
@@ -173,8 +167,7 @@
     border: 1px solid rgba(126, 245, 236, 0.3);
     border-radius: 999px;
     color: rgba(225, 248, 255, 0.94);
-    background: linear-gradient(180deg, rgba(13, 32, 46, 0.96), rgba(7, 18, 30, 0.98));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    background: rgba(8, 20, 34, 0.95);
 }
 
 .race-viz-button-secondary {
@@ -311,7 +304,6 @@
     background:
         radial-gradient(circle, rgba(255, 255, 255, 0.8) 0 18%, transparent 22%),
         radial-gradient(circle, var(--race-viz-caption-accent) 0 58%, rgba(126, 245, 236, 0.12) 62%);
-    box-shadow: 0 0 0.75rem rgba(126, 245, 236, 0.4);
 }
 
 .race-viz-event-popup .maplibregl-popup-content {
