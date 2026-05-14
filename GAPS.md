@@ -154,7 +154,9 @@ These are not bugs or spec gaps — they are design and layout improvements iden
 
 ---
 
-### DESIGN-1: Side-by-side layout — map and sidebar horizontally adjacent on large viewports
+### ~~DESIGN-1: Side-by-side layout — map and sidebar horizontally adjacent on large viewports~~
+
+- [x] Resolved on 2026-05-13: Added `@media (min-width: 56rem)` block to `assets/css/race-viz.css`. `.race-viz-shell` becomes a two-column CSS grid (`1fr 19rem`) with `grid-template-areas` routing the stage, sidebar, and figcaption. The sidebar gets `margin-top: 0`, `border-left: 1px solid var(--site-border-subtle)`, and `overflow-y: auto`. The race-page stage `min-height` drops from `78svh` to `65svh` in this context since the sidebar no longer adds vertical footprint. Tests added in `tests/race_visual_design_test.go`.
 
 **Files:** `assets/css/race-viz.css`, `layouts/races/single.html`
 
@@ -226,7 +228,9 @@ On a race page (where `.race-viz-shell` is already edge-to-edge), the 19rem side
 
 ---
 
-### DESIGN-4: Small visual polish items
+### ~~DESIGN-4: Small visual polish items~~
+
+- [x] Resolved on 2026-05-13: (1) Boat swatch changed from a `0.85rem` circle to a `1.2rem × 3px` horizontal tick (`border-radius: 2px`) to match the track-line appearance on the map. (2) Speed select `border-radius` reduced from `0.75rem` to `0.35rem` for a crisper look consistent with the flat direction. (3) `.race-viz-sidebar-title` `letter-spacing` reduced from `0.16em` to `0.1em` for better legibility in narrow columns. (4) `.race-viz-shell` `border-radius` reduced from `1rem` to `0.5rem` for a sharper embedded component appearance. Tests added in `tests/race_visual_design_test.go`.
 
 **File:** `assets/css/race-viz.css`
 
