@@ -80,6 +80,9 @@ function createRaceVizConfig(root) {
       prototypePage: root.dataset.raceVizMapPrototypePage ?? "",
       prototypeStyle: root.dataset.raceVizMapPrototypeStyle ?? "",
       maxBounds: parseMapMaxBounds(root.dataset.raceVizMapMaxBounds ?? ""),
+      minZoom: root.dataset.raceVizMapMinZoom !== undefined
+        ? parseFloat(root.dataset.raceVizMapMinZoom)
+        : null,
     },
     course: {
       url: resolveRaceVizURL(root.dataset.courseUrl ?? ""),
@@ -115,6 +118,7 @@ function createRaceVizConfig(root) {
     boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
     eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
     replaySpeed: parseInt(root.dataset.raceVizReplaySpeed ?? "60", 10) || 60,
+    fitMaxZoom: parseFloat(root.dataset.raceVizFitMaxZoom ?? "") || DEFAULT_MAP_FIT_MAX_ZOOM,
   };
 }
 
@@ -620,12 +624,16 @@ function createMapInstance(root, stage, state, canvas, variant) {
   }
 
   return new Promise((resolve, reject) => {
-    const map = new window.maplibregl.Map({
+    const mapOptions = {
       container: canvas,
       style: variant.style,
       attributionControl: false,
       maxBounds: state.config.map.maxBounds ?? variant.style.bounds ?? null,
-    });
+    };
+    if (state.config.map.minZoom != null) {
+      mapOptions.minZoom = state.config.map.minZoom;
+    }
+    const map = new window.maplibregl.Map(mapOptions);
 
     let settled = false;
 
@@ -1358,7 +1366,7 @@ function renderTrackLayers(map, state) {
   });
 }
 
-function fitCourseBounds(map, courseFeatures, root) {
+function fitCourseBounds(map, courseFeatures, config) {
   const coordinates = [];
 
   for (const feature of courseFeatures.features) {
@@ -1390,7 +1398,7 @@ function fitCourseBounds(map, courseFeatures, root) {
     new window.maplibregl.LngLatBounds(coordinates[0], coordinates[0]),
   );
 
-  const fitMaxZoom = parseFloat(root?.dataset?.raceVizFitMaxZoom) || DEFAULT_MAP_FIT_MAX_ZOOM;
+  const fitMaxZoom = config?.fitMaxZoom ?? DEFAULT_MAP_FIT_MAX_ZOOM;
   map.fitBounds(bounds, {
     padding: DEFAULT_MAP_FIT_PADDING,
     duration: 0,
@@ -1906,7 +1914,7 @@ async function loadCourse(root, stage, state, mapReadyPromise) {
     const map = await mapReadyPromise;
     upsertCourseSource(map, state, courseFeatures);
     renderCourseLayers(map, state);
-    fitCourseBounds(map, courseFeatures, root);
+    fitCourseBounds(map, courseFeatures, state.config);
     setCourseState(root, stage, state, "ready");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Race course failed to load.";

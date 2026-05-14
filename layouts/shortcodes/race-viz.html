@@ -14,6 +14,7 @@
 {{- $mode := or (.Get "mode") "replay" -}}
 {{- $fitMaxZoom := .Get "fitMaxZoom" -}}
 {{- $mapMaxBounds := .Get "mapMaxBounds" -}}
+{{- $mapMinZoom := .Get "mapMinZoom" -}}
 {{- if not $course -}}
     {{- errorf "race-viz shortcode requires course.json in %s" $targetPage.File.Path -}}
 {{- end -}}
@@ -58,6 +59,9 @@
     {{- end }}
     {{- with $mapMaxBounds }}
     data-race-viz-map-max-bounds="{{ . }}"
+    {{- end }}
+    {{- with $mapMinZoom }}
+    data-race-viz-map-min-zoom="{{ . }}"
     {{- end }}
     data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
     data-race-viz-active-layers="{{ delimit $activeLayers " " }}"

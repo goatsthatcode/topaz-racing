@@ -6,15 +6,9 @@ Gaps between the spec/tasks and the current implementation, plus bugs discovered
 
 ## Bugs
 
-### BUG-1: Replay speed state initializes to 1x despite UI showing 60x
+### ~~BUG-1: Replay speed state initializes to 1x despite UI showing 60x~~
 
-**File:** `assets/js/race-viz.js` — `createRaceVizState` (line 131), `syncReplayControls` (line 346)
-
-`createRaceVizState` initializes `replay.speed` to `1`. The HTML `<select>` in the shortcode has `<option value="60" selected>` as the default. At boot, `syncReplayControls` sets `speedSelect.value = "1"`, but since there is no option with value `"1"`, the browser ignores the assignment and the select visually stays on 60x. However, `state.replay.speed` remains `1`, so the first time the user clicks Play without changing the speed selector, the replay runs at 1x (real-time). A 26-hour race would take 26 hours to replay.
-
-The `data-race-viz-replay-speed="60"` attribute emitted by the shortcode is never read by `createRaceVizConfig`.
-
-**Fix:** Initialize `replay.speed` to `60` in `createRaceVizState`, or read the initial speed from the shortcode attribute in `createRaceVizConfig` and consume it in state initialization.
+- [x] Resolved on 2026-05-13 (commit c522531): Added `replaySpeed` to `createRaceVizConfig` reading `root.dataset.raceVizReplaySpeed` (defaulting to 60). `createRaceVizState` now seeds `replay.speed` from `config.replaySpeed`. The HTML attribute `data-race-viz-replay-speed="60"` is now consumed by the config object, so the replay clock starts at 60x on first play.
 
 ---
 
@@ -40,13 +34,9 @@ The `south-of-channel-islands` element has `"name": ""`. The schema defines `nam
 
 ---
 
-### BUG-5: `jibeset-import` compiled binary at repo root is not gitignored
+### ~~BUG-5: `jibeset-import` compiled binary at repo root is not gitignored~~
 
-**File:** `.gitignore`
-
-Running `go build -o jibeset-import ./cmd/jibeset-import` (or similar) produces a `jibeset-import` Mach-O binary at the repo root. The `.gitignore` includes `gpx-import` (the equivalent for the GPX tool) but not `jibeset-import`. The binary is currently untracked (`?? jibeset-import` in `git status`) but will be accidentally staged if anyone runs `git add .`.
-
-**Fix:** Add `jibeset-import` to `.gitignore` alongside `gpx-import`.
+- [x] Resolved on 2026-05-13 (commit c522531): Added `/jibeset-import` to `.gitignore` alongside `/gpx-import`.
 
 ---
 
@@ -78,13 +68,9 @@ Running `go build -o jibeset-import ./cmd/jibeset-import` (or similar) produces 
 
 ---
 
-### GAP-5: No shortcode parameter to set map `minZoom`
+### ~~GAP-5: No shortcode parameter to set map `minZoom`~~
 
-**File:** `layouts/shortcodes/race-viz.html`, `assets/js/race-viz.js` — `initializeMap` (line 591)
-
-The MapLibre `Map` constructor is called without a `minZoom` option. The effective floor on outward zoom is controlled indirectly by `mapMaxBounds` — if the bounds are tight, MapLibre refuses to zoom out past the level where the bounds would leave the viewport. This is a blunt instrument: adjusting bounds to allow more zoom-out also changes the extent users can pan, which are two independent concerns.
-
-A `mapMinZoom` shortcode parameter (mirroring the existing `fitMaxZoom` and `mapMaxBounds`) would let individual race pages set an explicit minimum zoom level that fits their course geography without needing to widen bounds as a workaround.
+- [x] Resolved on 2026-05-13: Added `mapMinZoom` shortcode parameter. The shortcode emits `data-race-viz-map-min-zoom="{{ . }}"` when the parameter is set. `createRaceVizConfig` reads it into `config.map.minZoom` and `createMapInstance` conditionally passes it as `minZoom` to the MapLibre `Map` constructor. Tests added in `tests/race_map_zoom_config_test.go`.
 
 ---
 
@@ -126,19 +112,15 @@ For V2: filter event visibility in `renderReplayFrame` so annotations appear onl
 
 ## Minor / Consistency Issues
 
-### MINOR-1: `fitMaxZoom` bypasses the config object
+### ~~MINOR-1: `fitMaxZoom` bypasses the config object~~
 
-**File:** `assets/js/race-viz.js` — `fitCourseBounds` (line 1265)
-
-`fitCourseBounds` reads `fitMaxZoom` directly from `root.dataset.raceVizFitMaxZoom` instead of routing it through `createRaceVizConfig`. All other configuration goes through the config object for consistent access. This is inconsistent and makes the config object an incomplete representation of the component's configuration.
+- [x] Resolved on 2026-05-13: Added `fitMaxZoom` to `createRaceVizConfig` reading `root.dataset.raceVizFitMaxZoom`. Updated `fitCourseBounds` to accept `config` instead of `root`, reading `config.fitMaxZoom`. The call site now passes `state.config`. Tests added in `tests/race_map_zoom_config_test.go`.
 
 ---
 
-### MINOR-2: `data-race-viz-replay-speed` attribute emitted but never consumed
+### ~~MINOR-2: `data-race-viz-replay-speed` attribute emitted but never consumed~~
 
-**Files:** `layouts/shortcodes/race-viz.html` (line 54), `assets/js/race-viz.js` — `createRaceVizConfig`
-
-The shortcode emits `data-race-viz-replay-speed="60"` on the root element, but `createRaceVizConfig` does not read it. The attribute is therefore unused. This is also the root cause of BUG-1.
+- [x] Resolved on 2026-05-13 (commit c522531): Fixed together with BUG-1. `createRaceVizConfig` now reads `root.dataset.raceVizReplaySpeed` into `config.replaySpeed`, which is used to initialize `state.replay.speed`.
 
 ---
 
