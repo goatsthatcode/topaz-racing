@@ -128,7 +128,9 @@ The figcaption renders "Race visualization embed for `dan-byrne-2025/bishop-rock
 
 ---
 
-### MINOR-4: Reference dataset has only one event of one type
+### ~~MINOR-4: Reference dataset has only one event of one type~~
+
+- [x] Resolved on 2026-05-13: Replaced the single `gybe` event in `bishop-rock-race/events.json` with six events, one of each schema-defined type: `mark_rounding` (El Segundo port rounding), `tack` (shipping lane tack), `sail_change` (A2 hoist), `wipeout` (offshore broach), `gybe` (Cortez Bank rounding), and `note` (dawn on the return leg). All events are time-anchored within the Topaz boat track bounds. `TestReferenceRaceEventsSatisfyV1Contract` now requires at least 6 events, asserts every schema type is represented, and validates event times against track replay bounds. Test added/updated in `tests/race_events_schema_test.go`.
 
 **File:** `content/races/dan-byrne-2025/bishop-rock-race/events.json`
 
