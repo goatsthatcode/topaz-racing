@@ -96,7 +96,7 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
         ## Enable search functionality, use duckduckgo (no javascript)
         enable = true
         ## Use pagefind search when javascript enabled, currently only 'pagefind' is supported, further options to be determined
-        pagefind = true
+        pagefind = false
 
     ## Race visualization map foundation
     [params.raceViz]
