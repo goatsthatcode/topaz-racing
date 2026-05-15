@@ -15,8 +15,10 @@ export default {
     const url = new URL(request.url);
     const match = url.pathname.match(TILE_PATH);
 
+    const CORS = { 'Access-Control-Allow-Origin': '*' };
+
     if (!match) {
-      return new Response('Not found', { status: 404 });
+      return new Response('Not found', { status: 404, headers: CORS });
     }
 
     const [, tileset, z, x, y] = match;
@@ -24,7 +26,7 @@ export default {
 
     const object = await env.TILES_BUCKET.get(key);
     if (!object) {
-      return new Response('Tile not found', { status: 404 });
+      return new Response('Tile not found', { status: 404, headers: CORS });
     }
 
     const data = await object.arrayBuffer();
