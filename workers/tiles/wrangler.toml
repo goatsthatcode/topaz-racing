@@ -1,0 +1,12 @@
+name = "topaz-racing-tiles"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[r2_buckets]]
+binding = "TILES_BUCKET"
+bucket_name = "topaz-racing-tiles"
+
+# Route: uncomment once topaz-racing.com is proxied through Cloudflare.
+# [[routes]]
+# pattern = "topaz-racing.com/tiles/*"
+# zone_name = "topaz-racing.com"

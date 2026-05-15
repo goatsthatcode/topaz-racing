@@ -2,6 +2,7 @@ public/
 resources/_gen/
 .cache/
 .DS_Store
+.wrangler/
 *.tmp
 *.bak
 *.old

@@ -102,7 +102,7 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
     [params.raceViz]
         [params.raceViz.tiles]
             development = 'http://127.0.0.1:3000'
-            production = 'https://topaz-racing.com/tiles'
+            production = 'https://topaz-racing-tiles.lorenbrindze.workers.dev/tiles'
             servingMode = 'external-static-vector-host'
             previewCommand = 'martin --config tiles/martin-config'
             defaultSet = 'combined_socal'
