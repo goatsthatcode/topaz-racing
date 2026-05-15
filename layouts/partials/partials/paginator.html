@@ -1,7 +1,7 @@
 {{- $pagerSize := .Params.Paginate }}
 {{- $pages := .RegularPagesRecursive }}
 {{- if .IsHome }}
-    {{- $pages = where site.RegularPages "Type" (or "post" "articles") }}
+    {{- $pages = where site.RegularPages "Type" "in" (slice "post" "articles" "races") }}
 {{- end }}
 {{- $paginator := .Paginate $pages }}
 {{- if $pagerSize }}
