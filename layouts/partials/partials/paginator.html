@@ -1,0 +1,10 @@
+{{- $pagerSize := .Params.Paginate }}
+{{- $pages := .RegularPagesRecursive }}
+{{- if .IsHome }}
+    {{- $pages = where site.RegularPages "Type" (or "post" "articles") }}
+{{- end }}
+{{- $paginator := .Paginate $pages }}
+{{- if $pagerSize }}
+    {{- $paginator = .Paginate $pages $pagerSize }}
+{{- end }}
+{{- return $paginator }}
