@@ -1,0 +1,22 @@
+{
+  "id": "shtp-2025-course",
+  "name": "2025 Singlehanded Transpac",
+  "elements": [
+    {
+      "id": "start",
+      "type": "start_line",
+      "lat": 37.8101,
+      "lon": -122.4653,
+      "name": "Golden Gate Start",
+      "rounding": "none"
+    },
+    {
+      "id": "finish",
+      "type": "finish_line",
+      "lat": 22.2087,
+      "lon": -159.5060,
+      "name": "Hanalei Bay Finish",
+      "rounding": "none"
+    }
+  ]
+}

@@ -15,6 +15,7 @@
 {{- $fitMaxZoom := .Get "fitMaxZoom" -}}
 {{- $mapMaxBounds := .Get "mapMaxBounds" -}}
 {{- $mapMinZoom := .Get "mapMinZoom" -}}
+{{- $mapMaxZoom := .Get "mapMaxZoom" -}}
 {{- if not $course -}}
     {{- errorf "race-viz shortcode requires course.json in %s" $targetPage.File.Path -}}
 {{- end -}}
@@ -53,7 +54,7 @@
     data-race-viz-replay-state="idle"
     data-race-viz-events-state="idle"
     data-race-viz-replay-time="0"
-    data-race-viz-replay-speed="60"
+    data-race-viz-replay-speed="120"
     {{- with $fitMaxZoom }}
     data-race-viz-fit-max-zoom="{{ . }}"
     {{- end }}
@@ -62,6 +63,9 @@
     {{- end }}
     {{- with $mapMinZoom }}
     data-race-viz-map-min-zoom="{{ . }}"
+    {{- end }}
+    {{- with $mapMaxZoom }}
+    data-race-viz-map-max-zoom="{{ . }}"
     {{- end }}
     data-race-viz-shared-layers="{{ delimit $sharedLayers " " }}"
     data-race-viz-active-layers="{{ delimit $activeLayers " " }}"
@@ -99,6 +103,7 @@
                 {{- end -}}
             </div>
         {{- end }}
+        <button type="button" class="race-viz-drawer-toggle" data-race-viz-drawer-toggle aria-label="Toggle controls" aria-expanded="false">Controls</button>
     </div>
     <aside class="race-viz-sidebar" data-race-viz-sidebar>
         {{- if eq $mode "replay" -}}
@@ -113,11 +118,10 @@
                     <label class="race-viz-speed-picker">
                         <span>Speed</span>
                         <select class="race-viz-speed-select" data-race-viz-replay-speed-select disabled>
-                            <option value="30">30x</option>
-                            <option value="60" selected>60x</option>
-                            <option value="120">120x</option>
+                            <option value="120" selected>120x</option>
                             <option value="300">300x</option>
                             <option value="600">600x</option>
+                            <option value="800">800x</option>
                         </select>
                     </label>
                 </div>

@@ -15,7 +15,8 @@ const DEFAULT_EVENTS_SOURCE_ID = "race-viz-events";
 const DEFAULT_EVENTS_LAYER_ID = "race-viz-events";
 const DEFAULT_COURSE_PALETTE = "signal-v1";
 const DEFAULT_MAP_FIT_PADDING = 48;
-const DEFAULT_MAP_FIT_MAX_ZOOM = 7.0; // overridden per-component via data-race-viz-fit-max-zoom
+const DEFAULT_MAP_FIT_MAX_ZOOM = 7.0;
+const DEFAULT_REPLAY_SPEED = 120;
 const COURSE_STYLE_PRESETS = {
   "signal-v1": {
     routeCasingColor: "rgba(4, 16, 24, 0.98)",
@@ -83,6 +84,9 @@ function createRaceVizConfig(root) {
       minZoom: root.dataset.raceVizMapMinZoom !== undefined
         ? parseFloat(root.dataset.raceVizMapMinZoom)
         : null,
+      maxZoom: root.dataset.raceVizMapMaxZoom !== undefined
+        ? parseFloat(root.dataset.raceVizMapMaxZoom)
+        : null,
     },
     course: {
       url: resolveRaceVizURL(root.dataset.courseUrl ?? ""),
@@ -117,7 +121,7 @@ function createRaceVizConfig(root) {
     },
     boatsURL: resolveRaceVizURL(root.dataset.boatsUrl ?? ""),
     eventsURL: resolveRaceVizURL(root.dataset.eventsUrl ?? ""),
-    replaySpeed: parseInt(root.dataset.raceVizReplaySpeed ?? "60", 10) || 60,
+    replaySpeed: parseInt(root.dataset.raceVizReplaySpeed ?? String(DEFAULT_REPLAY_SPEED), 10) || DEFAULT_REPLAY_SPEED,
     fitMaxZoom: parseFloat(root.dataset.raceVizFitMaxZoom ?? "") || DEFAULT_MAP_FIT_MAX_ZOOM,
   };
 }
@@ -632,6 +636,9 @@ function createMapInstance(root, stage, state, canvas, variant) {
     };
     if (state.config.map.minZoom != null) {
       mapOptions.minZoom = state.config.map.minZoom;
+    }
+    if (state.config.map.maxZoom != null) {
+      mapOptions.maxZoom = state.config.map.maxZoom;
     }
     const map = new window.maplibregl.Map(mapOptions);
 
@@ -2002,6 +2009,15 @@ function bootRaceVizRoot(root) {
   void loadCourse(root, stage, state, mapReadyPromise);
   const boatsReadyPromise = loadBoats(root, stage, state, mapReadyPromise);
   void loadEvents(root, stage, state, mapReadyPromise, boatsReadyPromise);
+
+  const drawerToggle = root.querySelector("[data-race-viz-drawer-toggle]");
+  if (drawerToggle) {
+    drawerToggle.addEventListener("click", () => {
+      const isOpen = root.dataset.raceVizSidebarOpen === "true";
+      root.dataset.raceVizSidebarOpen = String(!isOpen);
+      drawerToggle.setAttribute("aria-expanded", String(!isOpen));
+    });
+  }
 
   root.dataset.raceVizBooted = "true";
   root.dataset.raceVizState = "ready";

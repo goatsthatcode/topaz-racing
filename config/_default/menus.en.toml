@@ -5,10 +5,17 @@
   weight     = 1
 
   [[main]]
-  name       = 'Dan Byrne 2025'
-  identifier = 'dan-byrne-2025'
-  pageRef    = '/races/dan-byrne-2025'
-  parent     = 'races'
+    name       = 'SHTP 2025'
+    identifier = 'shtp-2025'
+    pageRef    = '/races/shtp-2025'
+    weight     = 1
+    parent     = 'races'
+
+  [[main]]
+    name       = 'Dan Byrne 2025'
+    identifier = 'dan-byrne-2025'
+    parent     = 'races'
+    weight     = 2
 
   [[main]]
     name       = 'Ship Rock Race'

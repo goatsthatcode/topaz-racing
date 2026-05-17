@@ -94,7 +94,7 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
     ## Search configuration
     [params.search]
         ## Enable search functionality, use duckduckgo (no javascript)
-        enable = true
+        enable = false
         ## Use pagefind search when javascript enabled, currently only 'pagefind' is supported, further options to be determined
         pagefind = false
 
@@ -104,11 +104,11 @@ ignoreFiles = [ '\.redacted', '\.old','\.bak', '\.tmp', '\.swp', '\.DS_Store']
             development = 'http://127.0.0.1:3000'
             production = 'https://topaz-racing-tiles.lorenbrindze.workers.dev/tiles'
             servingMode = 'external-static-vector-host'
-            previewCommand = 'martin --config tiles/martin-config'
+            previewCommand = 'cd tiles && martin --config martin-config'
             defaultSet = 'combined_socal'
             overviewSource = 'enc_combined'
             detailSource = 'combined_socal'
-            detailMinZoom = 10
+            detailMinZoom = 8
 
             [[params.raceViz.tiles.sets]]
                 id = 'combined_socal'

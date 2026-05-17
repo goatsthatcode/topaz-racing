@@ -419,7 +419,13 @@
     }
 }
 
-/* ─── Race page map-first composition ─────────────────────────────────────── */
+/* ─── Drawer toggle button ─────────────────────────────────────────────────── */
+
+.race-viz-drawer-toggle {
+    display: none; /* shown only in the wide two-column race-page layout */
+}
+
+/* ─── Race page composition ────────────────────────────────────────────────── */
 
 .race-page {
     display: flex;
@@ -435,8 +441,10 @@
     width: 100%;
 }
 
-/* Expand the visualization shell to fill the full page width */
+/* Mobile/tablet: full-bleed map for maximum stage space */
 [data-race-page] .race-viz-shell {
+    display: block; /* prevent the 56rem sidebar-column grid from applying */
+    position: relative;
     margin: 0;
     padding: 0.75rem;
     border-radius: 0;
@@ -445,34 +453,84 @@
     border-top: none;
 }
 
-/* Make the map canvas dominate the viewport on desktop */
 [data-race-page] .race-viz-stage {
-    min-height: clamp(24rem, 78svh, 56rem);
+    min-height: clamp(22rem, 72svh, 52rem);
     border-radius: 0.5rem;
 }
 
-/* Constrain prose paragraphs that follow the viz in the same content block */
+/* Prose below the map on small screens */
 .race-page-map > p,
 .race-page-map > h2,
 .race-page-map > h3,
 .race-page-map > ul,
-.race-page-map > ol {
+.race-page-map > ol,
+.race-page-map > table {
     max-width: 70ch;
     margin-inline: auto;
     padding-inline: 1rem;
 }
 
-.race-page-info {
-    padding-block: 2rem;
-}
-
 @media (max-width: 42rem) {
     [data-race-page] .race-viz-stage {
-        min-height: clamp(18rem, 65svh, 36rem);
+        min-height: clamp(16rem, 60svh, 32rem);
     }
 }
 
-/* ─── Side-by-side layout on wide viewports ─────────────────────────────── */
+/* ─── Race page: toggle always visible, sidebar drops down at narrow sizes ── */
+/*
+ * The toggle lives inside .race-viz-stage (position:relative) so bottom/right
+ * offsets are relative to the map itself regardless of sidebar state.
+ * At ≥80rem the sidebar overrides to the slide-right drawer behaviour.
+ */
+
+[data-race-page] .race-viz-sidebar {
+    display: none;
+    margin-top: 0;
+}
+
+[data-race-page] .race-viz-shell[data-race-viz-sidebar-open="true"] .race-viz-sidebar {
+    display: grid;
+    gap: 0.85rem;
+    padding: 0.85rem 0.9rem;
+    border-top: 1px solid var(--race-viz-frame);
+}
+
+[data-race-page] .race-viz-shell[data-race-viz-sidebar-open="true"] .race-viz-sidebar .race-viz-panel:first-child {
+    border-top: none;
+}
+
+[data-race-page] .race-viz-drawer-toggle {
+    display: inline-flex;
+    align-items: center;
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.6rem;
+    z-index: 5;
+    padding: 0.38rem 0.62rem;
+    background: rgba(6, 14, 25, 0.88);
+    border: 1px solid rgba(126, 245, 236, 0.28);
+    border-radius: 0.35rem;
+    color: rgba(215, 248, 255, 0.9);
+    font: inherit;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    backdrop-filter: blur(0.4rem);
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+[data-race-page] .race-viz-drawer-toggle:hover {
+    background: rgba(12, 26, 44, 0.96);
+    border-color: rgba(126, 245, 236, 0.5);
+}
+
+[data-race-page] .race-viz-shell[data-race-viz-sidebar-open="true"] .race-viz-drawer-toggle {
+    border-color: rgba(126, 245, 236, 0.6);
+    color: rgba(126, 245, 236, 1);
+}
+
+/* ─── Side-by-side shell layout (standalone / embed usage) ──────────────── */
 /*
  * At ≥ 56rem the sidebar (controls + fleet legend) moves from below the map
  * into a fixed-width right column. The map stage fills the remaining width.
@@ -506,34 +564,129 @@
         grid-area: caption;
     }
 
-    /* Panels become flat labeled sections: no horizontal padding (the sidebar
-     * column's own padding provides spacing) and a tighter vertical rhythm. */
     .race-viz-sidebar .race-viz-panel {
         padding: 0.65rem 0;
     }
 
-    /* The leading section needs no top separator — the sidebar border-left
-     * already provides a visual anchor. */
     .race-viz-sidebar .race-viz-panel:first-child {
         border-top: none;
     }
 
-    /* Sidebar section titles shrink to instrument-panel density in the narrow column. */
     .race-viz-sidebar .race-viz-sidebar-title {
         font-size: 0.74rem;
     }
 
-    /* The replay clock becomes the dominant readout in the sidebar. */
     .race-viz-sidebar .race-viz-replay-time {
         font-size: 1rem;
         letter-spacing: 0.1em;
     }
 
-    /* Sidebar no longer adds vertical footprint, so the stage can use a
-     * shorter min-height without shrinking the map on race pages. */
     [data-race-page] .race-viz-stage {
         min-height: clamp(24rem, 65svh, 56rem);
     }
+}
+
+/* ─── Two-column race-page layout: map left, prose right ────────────────── */
+/*
+ * At ≥ 80rem the race page matches the template's pagewidth rhythm. The map
+ * sits in a left column (3fr) and prose in a right column (2fr), both inset
+ * by the theme's --void padding. The sidebar becomes a slide-in drawer;
+ * overflow: hidden on the shell fully clips it when closed.
+ */
+
+@media (min-width: 80rem) {
+    /* Float layout: figure floats left, prose flows continuously beside it.
+     * Replaced grid because grid made row 1 as tall as the map's min-height,
+     * creating a large gap between para 1 and para 2 in the prose column.
+     * The container's padding-inline-start shifts the whole layout rightward. */
+    [data-race-page] .race-page-map {
+        padding-inline-start: calc(var(--void, 3rem) + 3rem);
+        padding-inline-end: 0.25rem;
+        padding-block: 1.5rem 2.5rem;
+        overflow: hidden; /* clears the float */
+    }
+
+    [data-race-page] .race-page-map > .race-viz-shell {
+        float: left;
+        width: calc(50% - 0.75rem);
+        margin-right: 0.75rem;
+    }
+
+    [data-race-page] .race-page-map > p,
+    [data-race-page] .race-page-map > h2,
+    [data-race-page] .race-page-map > h3,
+    [data-race-page] .race-page-map > ul,
+    [data-race-page] .race-page-map > ol,
+    [data-race-page] .race-page-map > table {
+        max-width: none;
+        margin-inline: 0;
+        padding: 0 1.5rem 0.75rem;
+    }
+
+    /* Restore normal shell appearance (not full-bleed at this width) */
+    [data-race-page] .race-viz-shell {
+        display: block;
+        position: relative;
+        margin: 0;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--race-viz-frame);
+        /* no overflow: hidden — sidebar expands to the right, outside the shell */
+    }
+
+    [data-race-page] .race-viz-stage {
+        min-height: clamp(24rem, 72svh, 58rem);
+    }
+
+    /*
+     * Sidebar expands to the RIGHT of the shell (into the prose column) so it
+     * never covers the map. It is hidden with visibility/opacity so the toggle
+     * button on the map is always reachable.
+     */
+    [data-race-page] .race-viz-sidebar {
+        display: grid; /* override display:none set at base race-page level */
+        position: absolute;
+        left: 100%;
+        top: 0;
+        bottom: 0;
+        width: 17rem;
+        margin: 0;
+        padding: 0.85rem 0.9rem;
+        background: rgba(6, 14, 25, 0.97);
+        backdrop-filter: blur(0.5rem);
+        border: 1px solid var(--race-viz-frame);
+        border-left: none;
+        border-radius: 0 0.5rem 0.5rem 0;
+        overflow-y: auto;
+        z-index: 10;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+
+    [data-race-page] .race-viz-shell[data-race-viz-sidebar-open="true"] .race-viz-sidebar {
+        display: grid; /* keep grid (don't inherit drop-down gap/padding overrides) */
+        visibility: visible;
+        opacity: 1;
+    }
+
+    [data-race-page] .race-viz-sidebar .race-viz-panel:first-child {
+        border-top: none;
+    }
+
+    [data-race-page] .race-viz-sidebar .race-viz-panel {
+        padding: 0.65rem 0;
+    }
+
+    [data-race-page] .race-viz-sidebar .race-viz-sidebar-title {
+        font-size: 0.74rem;
+    }
+
+    [data-race-page] .race-viz-sidebar .race-viz-replay-time {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+    }
+
 }
 
 /* ─── Mobile usability refinements ────────────────────────────────────────── */
